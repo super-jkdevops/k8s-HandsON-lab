@@ -1,11 +1,42 @@
 # Three node Vagrant Kubernetes Cluster
 Welcome! This is small kubernetes cluster for testers and developers. You can use this code also
 for education. It suits well when you have to perform fast tests and check if application is able
-to work in K8s. It based on standard rpm installation
+to work in K8s. It based on standard rpm installation.
 
+## Kubernetes version
+Currently I'm using 1.18.6. Version is provided as variable you can find it in:
+
+for control plane:
+```
+ansible/roles/k8s-bootstrap-master/vars/main.yaml
+```
+
+for workers:
+```
+ansible/roles/k8s-bootstrap-worker/vars/main.yaml
+```
+
+You can change version modifying value of 1 variable: `version`
+
+Reasonable choice:
+Old and stable version:     1.18.6
+More fresh and stil stable: 1.19.4
+Most fresh which works:     1.20.1
 
 ## Requirements
 Here will be short list about all requirements needed to run this environment.
+
++ Hardware:
+  * 4 CPU
+  * 8GB RAM
+  * 60GB HDD (preffered SSD)
+
++ Operating system:
+  * Widnows 10 installed WSL 1 preferable Ubuntu 18.04 LTS or 20.04 LTS (available in Microsoft Store)
+  * Ubuntu 18.04 LTS or 20.04 LTS
+  * CentOS/RHEL 7/8 64 bit preferable
+
+`Sorry I have no time to check Debian and Suse.`   
 
 + Packages:
   * vagrant 2.2.10 or higher (https://www.vagrantup.com/intro/getting-started/install.html)
@@ -236,14 +267,8 @@ From directory where Vagrantfile is located (kubernetes-vagrant) try connect to 
 ```
 vagrant ssh k8s-master
 
-ansible/ssh-keys/k8s-cluster already exists.
-Overwrite (y/n)? n
-Last login: Fri Jul 31 10:35:14 2020 from 10.0.2.2
-.--- k8s lab ---.
-|  Master Node  |
-'---------------'
-[vagrant@k8s-master ~]$ sudo su -
-[root@k8s-master ~]#
+PLEASE FIX IT
+
 ```
 
 `You will be asked for recreation ssh-keys, please answer "n"`
@@ -276,6 +301,13 @@ PING k8s-worker2 (172.16.0.4) 56(84) bytes of data.
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
 rtt min/avg/max/mdev = 0.256/0.256/0.256/0.000 ms
 
+$ ping -c 1 k8s-worker3
+PING k8s-worker3 (172.16.0.5) 56(84) bytes of data.
+64 bytes from k8s-worker3 (172.16.0.5): icmp_seq=1 ttl=64 time=0.256 ms
+
+--- k8s-worker3 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.256/0.256/0.256/0.000 ms
 ```
 
 Please repeat this operation for k8s-worker1 and k8s-worker2 and try to ping each hosts in
@@ -296,9 +328,10 @@ Then following output should be displayed:
 
 ```
 NAME          STATUS   ROLES    AGE     VERSION
-k8s-master    Ready    master   16m     v1.18.6
-k8s-worker1   Ready    <none>   10m     v1.18.6
-k8s-worker2   Ready    <none>   4m36s   v1.18.6
+k8s-master    Ready    master   16m     v1.19.4
+k8s-worker1   Ready    <none>   10m     v1.19.4
+k8s-worker2   Ready    <none>   4m36s   v1.19.4
+k8s-worker3   Ready    <none>   4m36s   v1.19.4
 
 ```
 
@@ -336,10 +369,9 @@ You should see following output:
 
 ```
 NAME                                       READY   STATUS    RESTARTS   AGE
-calico-kube-controllers-5fbfc9dfb6-vr6m2   1/1     Running   0          17m
-calico-node-92kln                          1/1     Running   0          11m
-calico-node-9bgjp                          1/1     Running   0          17m
-calico-node-wx6d2                          1/1     Running   0          5m11s
+
+PLEASE FIX IT WEAVENET INSTEAD CALICO
+
 coredns-66bff467f8-cmr7t                   1/1     Running   0          17m
 coredns-66bff467f8-klsw5                   1/1     Running   0          17m
 etcd-master                                1/1     Running   0          17m
@@ -360,7 +392,7 @@ kubectl --namespace kube-system get deployments
 Desired output:
 
 ```
-calico-kube-controllers   1/1     1            1           17m
+PLEASE FIX IT WEAVENET INSTEAD CALICO
 coredns                   2/2     2            2           17m
 ```
 
@@ -383,6 +415,7 @@ cat <<EOT >> /etc/hosts
 172.16.0.2   k8s-master ceph.lab.com traefik.lab.com
 172.16.0.3   k8s-worker1
 172.16.0.4   k8s-worker2
+172.16.0.5   k8s-worker3
 EOT
 ```
 
@@ -410,3 +443,6 @@ Thank you!
 - [ ] Spin up ceph cluster using rook
 - [ ] Add Ingress controller traefik as default controller
 - [ ] Setup frontend based on flask for course presentation
+- [ ] Correct output of commands
+- [ ] Provision 2nd master node
+- [ ] Provision HAProxy loadbalancer
