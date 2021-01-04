@@ -1,0 +1,29 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: dashboard-ceph-ingress
+  namespace: rook-ceph
+spec:
+  entryPoints:
+    - web
+  routes:
+  - kind: Rule
+    match: Host(`ceph.lab.com`) && PathPrefix(`/ceph-dashboard`)
+    services:
+    - kind: Service
+      name: rook-ceph-mgr-dashboard
+      passHostHeader: true
+      port: 9443
+      responseForwarding:
+        flushInterval: 1ms
+      scheme: http
+      sticky:
+        cookie:
+          httpOnly: true
+          name: cookie
+          secure: true
+          sameSite: none
+      strategy: RoundRobin
+      weight: 10
+  tls:
+      secretName: ceph-dashboard-tls

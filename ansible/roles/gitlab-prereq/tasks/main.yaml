@@ -1,0 +1,55 @@
+---
+- name: 'Completely disable SElinux'
+  selinux:
+    state: disabled
+
+- name: 'Stop firewalld if it is running and disable from autostart'
+  systemd:
+    name: firewalld
+    state: stopped
+    enabled: no
+
+- name: 'Install prerequisites'
+  yum:
+    name: "{{ packages }}"
+    state: present
+    update_cache: yes
+  vars:
+    packages:
+    - lsof
+    - curl
+    - policycoreutils
+    - openssh-server
+    - openssh-clients
+    - postfix
+    - openssl
+
+- name: 'Start postfix if is not running and enable from autostart'
+  systemd:
+    name: postfix
+    state: started
+    enabled: yes
+
+- name: 'Add gitlab repository'
+  shell: curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh | sudo bash
+  args:
+    warn: no
+  register: status
+
+- debug: msg="{{ status.stdout }}"
+- debug: msg="{{ status.stderr }}"
+
+- name: 'Install Gitlab CE'
+  yum:
+    name: "{{ packages }}"
+    state: present
+    update_cache: yes
+  vars:
+    packages:
+    - gitlab-ce
+
+- name: 'Additional PATH about gitlab present in root bash profile'
+  lineinfile:
+    path: /etc/profile.d/path.sh
+    line: 'PATH=$PATH:$HOME/bin:/opt/gitlab/bin:'
+    create: yes

@@ -1,0 +1,10 @@
+---
+- name: "Push join.sh kubernetes file from the vagrant host to worker"
+  copy:
+    src=tmp/join.sh dest=$HOME/join.sh owner=root group=root mode='0700'
+
+- name: 'Joining node {{ ansible_hostname}} into cluster'
+  shell: $HOME/join.sh
+  register: status
+- debug: msg="{{ status.stdout }}"
+- debug: msg="{{ status.stderr }}"

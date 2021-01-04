@@ -1,0 +1,8 @@
+---
+- hosts: all
+  become: true
+  gather_facts: no
+  tasks:
+    - name: 'Gitlab CICD  Configuration'
+      import_role:
+        name: gitlab-config

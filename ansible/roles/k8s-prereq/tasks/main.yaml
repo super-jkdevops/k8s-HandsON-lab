@@ -1,0 +1,188 @@
+---
+- name: 'Completely disable SElinux'
+  selinux:
+    state: disabled
+
+- sysctl:
+    name: "{{ item }}"
+    value: '1'
+    sysctl_file: /etc/sysctl.d/kubernetes.conf
+    reload: no
+  with_items:
+    - net.ipv6.conf.all.disable_ipv6
+    - net.ipv6.conf.default.disable_ipv6
+    - net.bridge.bridge-nf-call-iptables
+    - net.ipv4.ip_forward
+    - net.bridge.bridge-nf-call-ip6tables
+
+- sysctl:
+    name: "{{ item }}"
+    value: '1'
+    sysctl_file: /etc/sysctl.d/calico.conf
+    reload: no
+  with_items:
+    - net.ipv6.conf.all.disable_ipv6
+    - net.ipv6.conf.default.disable_ipv6
+    - net.bridge.bridge-nf-call-iptables
+    - net.ipv4.ip_forward
+    - net.bridge.bridge-nf-call-ip6tables
+
+- name: 'Reload sysctl values'
+  command: 'sysctl --system'
+  register: status
+- debug: msg="{{ status.stdout }}"
+- debug: msg="{{ status.stderr }}"
+
+- name: 'Remove swapfile from /etc/fstab'
+  mount:
+    name: "{{ item }}"
+    fstype: swap
+    state: absent
+  with_items:
+    - swap
+    - none
+
+- name: 'Disable swap'
+  command: swapoff -a
+
+- name: 'Stop firewalld if it is running and disable from autostart'
+  systemd:
+    name: firewalld
+    state: stopped
+    enabled: no
+
+- name: 'Install prerequisite packages'
+  yum:
+    name: "{{ packages }}"
+    state: present
+    update_cache: yes
+  vars:
+    packages:
+    - yum-utils
+    - device-mapper-persistent-data
+    - lvm2
+    - curl
+    - net-tools
+    - git
+
+- name: 'Uninstall docker from distribution if was installed'
+  yum:
+    name:
+      - docker
+      - docker-client
+      - docker-client-latest
+      - docker-common
+      - docker-latest
+      - docker-latest-logrotate
+      - docker-logrotate
+      - docker-engine
+    state: absent
+
+- name: 'Configure Docker CE repository'
+  yum_repository:
+    name: docker-ce-stable
+    description: 'Docker Community Edition Stable'
+    file: docker-ce
+    baseurl: https://download.docker.com/linux/centos/7/$basearch/stable
+    gpgkey: https://download.docker.com/linux/centos/gpg
+    gpgcheck: yes
+    enabled: yes
+
+- name: 'Install docker and its dependecies'
+  yum:
+    name: "{{ packages }}"
+    state: present
+    update_cache: yes
+  vars:
+    packages:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+
+- name: 'Add vagrant user to docker group'
+  user:
+    name: vagrant
+    group: docker
+
+- name: 'Enable service docker'
+  service:
+    name: docker
+    enabled: yes
+
+- name: 'Start service docker, if not started'
+  service:
+    name: docker
+    state: started
+
+- name: 'Create daemon.json docker custom config file'
+  file:
+    path: /etc/docker/daemon.json
+    state: touch
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: 'Add custom docker configuration block into daemon.json'
+  blockinfile:
+    path: /etc/docker/daemon.json
+    create: yes
+    owner: root
+    group: root
+    mode: '0600'
+    marker: ''
+    block: |
+       {
+         "exec-opts": ["native.cgroupdriver=systemd"],
+         "log-driver": "json-file",
+         "log-opts": {
+           "max-size": "100m"
+         },
+         "storage-driver": "overlay2",
+         "storage-opts": [
+         "overlay2.override_kernel_check=true"
+         ]
+       }
+
+- name: 'Calico prerequisite NetworkManager protect failure'
+  blockinfile:
+    path: /etc/NetworkManager/conf.d/calico.conf
+    create: yes
+    owner: root
+    group: root
+    mode: '0600'
+    marker: ''
+    block: |
+      [keyfile]
+      unmanaged-devices=interface-name:cali*;interface-name:tunl*;interface-name:vxlan.calico
+
+- name: 'Docker config extra systemd directory'
+  file:
+    path: /etc/systemd/system/docker.service.d
+    state: directory
+    mode: '0755'
+
+- name: 'Daemon reload new docker configuration'
+  systemd: daemon_reload=yes
+
+- name: 'Restart docker service'
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: docker
+
+- name: 'Configure /etc/hosts for all LAB hosts'
+  blockinfile:
+    path: /etc/hosts
+    marker: "# LAB HOSTS"
+    block: |
+      172.16.0.2  k8s-master
+      172.16.0.3  k8s-worker1
+      172.16.0.4  k8s-worker2
+      172.16.0.5  k8s-worker3
+
+- name: 'Delete unnecessary entries from /etc/hosts file'
+  lineinfile:
+    path: /etc/hosts
+    state: absent
+    regexp: '^127.0.1.1 k8s'
+

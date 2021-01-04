@@ -1,0 +1,24 @@
+---
+- name: 'Create a .ssh directory if it does not exist'
+  file:
+    path: $HOME/.ssh
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: 'Copy ssh private and public keys'
+  copy: src={{ item.src }} dest={{ item.dest }}
+  with_items:
+    - { src: ../../../ssh-keys/k8s-cluster, dest: $HOME/.ssh/id_rsa }
+    - { src: ../../../ssh-keys/k8s-cluster.pub, dest: $HOME/.ssh/authorized_keys }
+
+- name: 'Fix permissions'
+  file :
+    path : "{{ item }}"
+    owner : root
+    group : root
+    mode : 0600
+  with_items:
+    - $HOME/.ssh/id_rsa
+    - $HOME/.ssh/authorized_keys

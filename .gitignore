@@ -1,0 +1,8 @@
+extrastorage
+extrastorage/*
+ansible/tmp
+ansible/tmp/*
+ansible/ssh-keys
+ansible/ssh-keys/*
+.vagrant
+.vagrant/*

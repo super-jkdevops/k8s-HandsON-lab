@@ -1,0 +1,35 @@
+---
+- name: 'Configure Kubernetes repository'
+  yum_repository:
+    name: kubernetes
+    description: 'Kubernetes repository for CentOS'
+    file: kubernetes
+    baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+    gpgkey: 'https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg'
+    gpgcheck: yes
+    enabled: yes
+    repo_gpgcheck: 1
+
+- name: 'Install kubernetes binaries'
+  yum:
+    name: "{{ packages }}"
+    state: present
+    update_cache: yes
+  vars:
+    packages:
+    #- kubelet-{{ version }}
+    #- kubectl-{{ version }}
+    #- kubernetes-cni
+    - kubelet-{{ version }}
+    - kubectl-{{ version }}
+    - kubernetes-cni
+
+- name: 'Enable kubelet service'
+  service:
+    name: kubelet
+    enabled: yes
+
+- name: 'Start kubelet service, if not started'
+  service:
+    name: kubelet
+    state: started

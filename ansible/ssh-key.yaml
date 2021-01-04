@@ -1,0 +1,8 @@
+---
+- hosts: all
+  become: true
+  gather_facts: no
+  tasks:
+    - name: 'SSH Key Propagation'
+      import_role:
+        name: ssh-key

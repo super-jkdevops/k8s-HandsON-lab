@@ -1,0 +1,116 @@
+---
+- name: 'Configure Kubernetes repository'
+  yum_repository:
+    name: kubernetes
+    description: 'Kubernetes repository for CentOS'
+    file: kubernetes
+    baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+    gpgkey: 'https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg'
+    gpgcheck: yes
+    enabled: yes
+    repo_gpgcheck: 1
+
+- name: 'Install kubernetes binaries'
+  yum:
+    name: "{{ packages }}"
+    state: present
+    update_cache: yes
+  vars:
+    packages:
+    #- kubelet-{{ version }}
+    #- kubeadm-{{ version }}
+    #- kubectl-{{ version }}
+    #- kubernetes-cni
+    - kubelet
+    - kubeadm
+    - kubectl
+    - kubernetes-cni
+
+ 
+- name: 'Install Epel for further ansible installation'
+  yum:
+    name: "{{ packages }}"
+    state: present
+    update_cache: yes
+  vars:
+    packages:
+    - epel-release
+
+- name: 'Install ansible on master node'
+  yum:
+    name: "{{ packages }}"
+    state: present
+    update_cache: yes
+  vars:
+    packages:
+    - ansible
+
+- name: 'Enable kubelet service'
+  service:
+    name: kubelet
+    enabled: yes
+
+- name: 'Start kubelet service, if not started'
+  service:
+    name: kubelet
+    state: started
+
+
+- name: 'Initialize k8s master node'
+  shell: kubeadm init --apiserver-advertise-address={{ adv_master_ip }} --pod-network-cidr={{ pod_network }}
+  vars:
+    adv_master_ip: 172.16.0.2
+    pod_network: 10.244.0.0/16
+
+  retries: 10
+  delay: 30
+  register: result
+  until: result.stdout.find("Your Kubernetes control-plane has initialized successfully!") != -1
+
+- debug: msg="{{ result.stdout }}"
+- debug: msg="{{ result.stderr }}"
+
+- name: 'Create a directory .kube if it does not exist'
+  file:
+    path: $HOME/.kube
+    state: directory
+    owner: root
+    group: root
+    mode: '0750'
+
+- name: 'Copy kubernetes configuration for root user'
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: $HOME/.kube/config
+    owner: root
+    group: root
+    mode: '0600'
+    remote_src: yes
+
+- name: 'Implement weavenet network for pods'
+  shell: kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+  register: status
+
+- debug: msg="{{ status.stdout }}"
+- debug: msg="{{ status.stderr }}"
+
+- name: 'Create a ansible playbook directory if it does not exist'
+  file:
+    path: $HOME/ansible
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: 'Copy ansible things'
+  copy: src={{ item.src }} dest={{ item.dest }}
+  with_items:
+    - { src: ../../../inventory/hosts, dest: $HOME/ansible/hosts }
+    - { src: ../../../conf/ansible.cfg, dest: $HOME/ansible/ansible.cfg }
+
+- name: 'Generate join command'
+  shell: kubeadm token create --print-join-command > $HOME/ansible/join.sh;chmod 700 $HOME/ansible/join.sh
+  register: status
+
+- debug: msg="{{ status.stdout }}"
+- debug: msg="{{ status.stderr }}"
