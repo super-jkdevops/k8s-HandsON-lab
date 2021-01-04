@@ -17,16 +17,11 @@
     update_cache: yes
   vars:
     packages:
-    #- kubelet-{{ version }}
-    #- kubeadm-{{ version }}
-    #- kubectl-{{ version }}
-    #- kubernetes-cni
-    - kubelet
-    - kubeadm
-    - kubectl
+    - kubelet-{{ version }}
+    - kubeadm-{{ version }}
+    - kubectl-{{ version }}
     - kubernetes-cni
 
- 
 - name: 'Install Epel for further ansible installation'
   yum:
     name: "{{ packages }}"

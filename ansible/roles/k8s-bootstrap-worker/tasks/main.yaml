@@ -17,9 +17,6 @@
     update_cache: yes
   vars:
     packages:
-    #- kubelet-{{ version }}
-    #- kubectl-{{ version }}
-    #- kubernetes-cni
     - kubelet-{{ version }}
     - kubectl-{{ version }}
     - kubernetes-cni
