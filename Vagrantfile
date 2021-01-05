@@ -27,7 +27,17 @@ Vagrant.configure("2") do |config|
     config.vm.define hostname do |cfg|
 
       # Disable syncing vagrant directory
-      config.vm.synced_folder '.', '/vagrant', disabled: true
+      #config.vm.synced_folder '.', '/vagrant', disabled: true
+
+      # Synchronization apps/ dir into destination /vagrant dir (needed for deploy application into K8s cluster)
+      config.vm.synced_folder '.', '/vagrant',
+      type: 'rsync',
+      # rsync__verbose: true,
+      rsync__exclude: [
+        'ansible', 'extrastorage', 'src',
+        '.gitignore', 'README.md', 'Vagrantfile',
+        '.vagrant',
+      ]
       
       # Setup timezone
       cfg.vm.provision "shell", inline: "timedatectl set-timezone Europe/Warsaw", privileged: true
@@ -56,16 +66,6 @@ Vagrant.configure("2") do |config|
         cfg.vm.provision :ansible do |ansible|
           ansible.playbook = "ansible/k8s-bootstrap-master.yaml"
         end # end master bootstrapping
-
-        # Synchronization apps/ dir into destination /vagrant dir (needed for deploy application into K8s cluster)
-        config.vm.synced_folder '.', '/vagrant',
-        type: 'rsync',
-        # rsync__verbose: true,
-        rsync__exclude: [
-          'ansible', 'extrastorage', 'src',
-          '.gitignore', 'README.md', 'Vagrantfile',
-          '.vagrant',
-        ]
 
         # Download join.sh script from master previously generated
         cfg.vm.provision :ansible do |ansible|
