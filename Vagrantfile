@@ -36,7 +36,7 @@ Vagrant.configure("2") do |config|
       rsync__exclude: [
         'ansible', 'extrastorage', 'src',
         '.gitignore', 'README.md', 'Vagrantfile',
-        '.vagrant',
+        '.vagrant', '.git',
       ]
       
       # Setup timezone
@@ -48,6 +48,9 @@ Vagrant.configure("2") do |config|
       # Define motd
       cfg.vm.provision "shell", path: "src/scripts/provisioning/#{info[:custom_host]}"
 
+      # Install ansible on Ansible on each node
+      cfg.vm.provision "shell", path: "src/scripts/provisioning/ansible-installation.sh"
+
       # Propagate ssh keys in case of further ansible usage
       cfg.vm.provision :ansible do |ansible|
         ansible.playbook = "ansible/ssh-key.yaml"
@@ -58,6 +61,10 @@ Vagrant.configure("2") do |config|
         cfg.vm.provision "ansible" do |ansible|
             ansible.playbook = "ansible/k8s-prereq.yaml"
         end # Kubernetes end ansible playbook runs
+
+        # cleanup /vagrant directory
+        cfg.vm.provision "shell", inline: "rm -rf /vagrant", privileged: true
+
       end
 
       if (hostname == 'k8s-master') then

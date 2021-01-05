@@ -447,3 +447,4 @@ Thank you!
 - [ ] Provision 2nd master node
 - [ ] Provision HAProxy loadbalancer
 - [X] Add apps directory synchronization to each of cluster node
+- [ ] Replace Ansible on vagrant host using anslible_local on each vagrant vm (PARTIALY DONE)

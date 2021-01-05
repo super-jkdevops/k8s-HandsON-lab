@@ -18,6 +18,7 @@
   vars:
     packages:
     - kubelet-{{ version }}
+    - kubeadm-{{ version }}
     - kubectl-{{ version }}
     - kubernetes-cni
 
