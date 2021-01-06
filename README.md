@@ -185,21 +185,16 @@ based on CEPH you can provision also ceph boxes.
 
 run:
 
-Create machines without running provisioning scripts:
-```
-vagrant up k8s-master k8s-worker1 k8s-worker2 --no-provision
-```
-
 Run provisioning scripts in two waves
 
 ***k8s-master:***
 ```
-vagrant provision k8s-master
+./setup.sh -m
 ```
 
-***k8s-worker1 & k8s-worker2:***
+***k8s-worker1 & k8s-worker2 & k8s-worker3:***
 ```
-vagrant provision k8s-worker1 k8s-worker2
+./setup.sh -w
 ```
 
 You should see similar output:
@@ -264,7 +259,12 @@ k8s-worker2                    : ok=5    changed=2    unreachable=0    failed=0 
 It can take a while, up to 10 mins. Please be patient.
 
 ## Verification
-From directory where Vagrantfile is located (kubernetes-vagrant) try connect to k8s-master and k8s-worker[1,2] 
+From directory where Vagrantfile is located (kubernetes-vagrant) try connect to k8s-master and k8s-worker[1,2,3] 
+
+### Check if machines are up and running
+```
+./setup -s
+```
 
 ### Test master node:
 
