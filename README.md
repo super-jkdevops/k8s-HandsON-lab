@@ -450,5 +450,6 @@ Thank you!
 - [ ] Correct output of commands
 - [ ] Provision 2nd master node
 - [ ] Provision HAProxy loadbalancer
+- [ ] One hadshoot provisioner script
 - [x] Add apps directory synchronization to each of cluster node
 - [x] Replace Ansible on vagrant host using anslible_local on each vagrant vm (PARTIALY DONE)
