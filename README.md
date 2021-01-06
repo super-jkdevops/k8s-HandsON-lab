@@ -43,7 +43,9 @@ Here will be short list about all requirements needed to run this environment.
   * python 2.8 or higher (https://www.python.org/download/releases/2.7/)
   * git 1.8 or higher for Linux / 2.29.2 or higher for Windows  (https://pl.atlassian.com/git/tutorials/install-git)
   * VirtualBox 6.1 or higher (https://www.virtualbox.org/wiki/Downloads)
+  <!--- is not needed anymore cause I'm using ansible_local
   * Ansible 2.8 or higher (https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
+  --->
 
 When your operating system is Windows please consider Cygwin installation. You have always alternative to install WSL1 or 2.
 
@@ -59,6 +61,7 @@ CentOS 7.X/RHEL 7.X, CentOS 8.X/RHEL 8.X or Windows go through documentation. Th
 Windows: https://download.virtualbox.org/virtualbox/6.1.16/VirtualBox-6.1.16-140961-Win.exe
 Linux distributions: https://www.virtualbox.org/wiki/Linux_Downloads
 
+<!--- is not needed anymore cause I'm using ansible_local
 ## Ansible installation
 This Lab require ansible cause it is used for provisioning K8s cluster. If you have no anslibe please install it use below instructions:
 
@@ -76,6 +79,7 @@ apt-get install ansible
 ```
 pip install --user ansible
 ```
+--->
 
 ### Windows
 Please install WSL when you spin up lab on Windows machine. I recommend you to use 
@@ -447,4 +451,4 @@ Thank you!
 - [ ] Provision 2nd master node
 - [ ] Provision HAProxy loadbalancer
 - [x] Add apps directory synchronization to each of cluster node
-- [ ] Replace Ansible on vagrant host using anslible_local on each vagrant vm (PARTIALY DONE)
+- [x] Replace Ansible on vagrant host using anslible_local on each vagrant vm (PARTIALY DONE)

@@ -285,7 +285,7 @@ spec:
   selector:
     matchLabels:
       app: rook-ceph-operator
-  replicas: 3
+  replicas: 1
   template:
     metadata:
       labels:

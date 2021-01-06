@@ -8,16 +8,23 @@ CONTROLLER = ENV.fetch('CONTROLLER', 'IDE')
 # Variables
 IMAGE_NAME_K8S  = "centos/7"
 DISK_SIZE = 10240
+PLAYBOOK_DIR = "/vagrant/ansible"
+ROLES_DIR = "/vagrant/ansible/roles"
+
+# Generate ssh keys for K8S further usage
+system("
+    if [ #{ARGV[0]} = 'up' ]; then
+        echo '!!! You are trying to spin up k8s Lab system starting generate ssh key for further use !!!'
+        src/scripts/local/make-ssh-key.sh
+    fi
+")
 
 lab = {
-  "k8s-master"  => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.2",   :cpus => 2,  :mem =>2048, :custom_host => "k8s-master.sh",  :ssh_port => "2222" },
-  "k8s-worker1" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.3",   :cpus => 2,  :mem =>1500, :custom_host => "k8s-worker1.sh", :ssh_port => "2223" },
-  "k8s-worker2" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.4",   :cpus => 2,  :mem =>1500, :custom_host => "k8s-worker2.sh", :ssh_port => "2224" },
-  "k8s-worker3" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.5",   :cpus => 2,  :mem =>1500, :custom_host => "k8s-worker3.sh", :ssh_port => "2225" }
+  "k8s-master"  => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.2",  :cpus => 2,  :mem =>1500,  :custom_host => "k8s-master.sh"  },
+  "k8s-worker1" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.3",  :cpus => 2,  :mem =>2048,  :custom_host => "k8s-worker1.sh" },
+  "k8s-worker2" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.4",  :cpus => 2,  :mem =>2048,  :custom_host => "k8s-worker2.sh" },
+  "k8s-worker3" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.5",  :cpus => 2,  :mem =>2048,  :custom_host => "k8s-worker3.sh" }
   }
-
-system('rm -rf ssh-keys')
-system('src/scripts/local/make-ssh-key.sh')
 
 # If does not exist create extra storage dir directory - ceph
 FileUtils.mkdir_p "./#{ST_DIR}"
@@ -26,17 +33,14 @@ Vagrant.configure("2") do |config|
   lab.each_with_index do |(hostname, info), index|
     config.vm.define hostname do |cfg|
 
-      # Disable syncing vagrant directory
-      #config.vm.synced_folder '.', '/vagrant', disabled: true
-
       # Synchronization apps/ dir into destination /vagrant dir (needed for deploy application into K8s cluster)
       config.vm.synced_folder '.', '/vagrant',
       type: 'rsync',
       # rsync__verbose: true,
       rsync__exclude: [
-        'ansible', 'extrastorage', 'src',
-        '.gitignore', 'README.md', 'Vagrantfile',
-        '.vagrant', '.git',
+        'extrastorage', 'src', '.gitignore',
+        'README.md', 'Vagrantfile', '.vagrant', 
+        '.git',
       ]
       
       # Setup timezone
@@ -46,49 +50,57 @@ Vagrant.configure("2") do |config|
       cfg.vm.provision "shell", inline: "sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config;systemctl restart sshd", privileged: true
 
       # Define motd
-      cfg.vm.provision "shell", path: "src/scripts/provisioning/#{info[:custom_host]}"
+      cfg.vm.provision "shell", path: "src/scripts/provisioning/#{info[:custom_host]}", privileged: true
 
       # Install ansible on Ansible on each node
-      cfg.vm.provision "shell", path: "src/scripts/provisioning/ansible-installation.sh"
+      cfg.vm.provision "shell", path: "src/scripts/provisioning/ansible-installation.sh", privileged: true
 
       # Propagate ssh keys in case of further ansible usage
-      cfg.vm.provision :ansible do |ansible|
-        ansible.playbook = "ansible/ssh-key.yaml"
+      cfg.vm.provision "ansible_local" do |ansible|
+        ansible.verbose = "v"
+        ansible.playbook = "#{PLAYBOOK_DIR}" + '/' + 'ssh-key.yaml'
+        ansible.galaxy_roles_path = "#{ROLES_DIR}"
       end # end ssh key propagation
 
       if (hostname == 'k8s-master') or (hostname == 'k8s-worker1') or (hostname == 'k8s-worker2') or (hostname == 'k8s-worker3') then
         # Prerequisite ansible playbooks for kubernetes
-        cfg.vm.provision "ansible" do |ansible|
-            ansible.playbook = "ansible/k8s-prereq.yaml"
+        cfg.vm.provision "ansible_local" do |ansible|
+            ansible.verbose = "v"
+            ansible.playbook = "#{PLAYBOOK_DIR}" + '/' + 'k8s-prereq.yaml'
+            ansible.galaxy_roles_path = "#{ROLES_DIR}"
         end # Kubernetes end ansible playbook runs
-
-        # cleanup /vagrant directory
-        cfg.vm.provision "shell", inline: "rm -rf /vagrant", privileged: true
-
       end
 
       if (hostname == 'k8s-master') then
         
         # k8s bootstrapping master
-        cfg.vm.provision :ansible do |ansible|
-          ansible.playbook = "ansible/k8s-bootstrap-master.yaml"
+        cfg.vm.provision "ansible_local" do |ansible|
+          ansible.verbose = "v"
+          ansible.playbook = "#{PLAYBOOK_DIR}" + '/' + 'k8s-bootstrap-master.yam'
+          ansible.galaxy_roles_path = "#{ROLES_DIR}"
         end # end master bootstrapping
-
+      
         # Download join.sh script from master previously generated
-        cfg.vm.provision :ansible do |ansible|
-          ansible.playbook = "ansible/k8s-pull-join.yaml"
+        cfg.vm.provision "ansible_local" do |ansible|
+          ansible.verbose = "v"
+          ansible.playbook = "#{PLAYBOOK_DIR}" + '/' + 'k8s-pull-join.yaml'
+          ansible.galaxy_roles_path = "#{ROLES_DIR}"
         end # end pull join.sh from master
       end
 
       if (hostname == 'k8s-worker1') or (hostname == 'k8s-worker2') or (hostname == 'k8s-worker3') then
         # k8s bootstrapping worker
-        cfg.vm.provision :ansible do |ansible|
-          ansible.playbook = "ansible/k8s-bootstrap-worker.yaml"
+        cfg.vm.provision "ansible_local" do |ansible|
+          ansible.verbose = "v"
+          ansible.playbook = "#{PLAYBOOK_DIR}" + '/' + 'k8s-bootstrap-worker.yaml'
+          ansible.galaxy_roles_path = "#{ROLES_DIR}"
         end # end worker bottstrapping
 
         # Push join.sh to worker and running joining
-        cfg.vm.provision :ansible do |ansible|
-          ansible.playbook = "ansible/k8s-push-join.yaml"
+        cfg.vm.provision "ansible_local" do |ansible|
+          ansible.verbose = "v"
+          ansible.playbook = "#{PLAYBOOK_DIR}" + '/' + 'k8s-push-join.yaml'
+          ansible.galaxy_roles_path = "#{ROLES_DIR}"
         end # end joining worker node to k8s cluster
       end # End host selection
 
@@ -98,7 +110,8 @@ Vagrant.configure("2") do |config|
         # Adding extra disk
         disk = "#{ST_DIR}" + '/' + hostname + '.vmdk'
         if !File.exist?(disk)
-           vb.customize ['createhd', '--filename', disk, '--size', "#{DISK_SIZE}", '--variant', 'Fixed']
+           #vb.customize ['createhd', '--filename', disk, '--size', "#{DISK_SIZE}", '--variant', 'Fixed']
+           vb.customize ['createhd', '--filename', disk, '--size', "#{DISK_SIZE}"]
            vb.customize ['modifyhd', disk, '--type', 'writethrough']
         end
         vb.customize ['storageattach', :id, '--storagectl', CONTROLLER, '--port', 0, '--device', 1, '--type', 'hdd', '--medium', disk] 
@@ -108,8 +121,6 @@ Vagrant.configure("2") do |config|
         vb.cpus = "#{info[:cpus]}"
         config.vm.box = info[:osimage]
 
-        # Configure network and port forwarding  
-        #config.vm.network :forwarded_port, guest: 22, host: "#{info[:ssh_port]}" , id: "ssh"
         override.vm.network :private_network, ip: "#{info[:ip]}"
 
         # Configure hostname
