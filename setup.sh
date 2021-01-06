@@ -8,14 +8,33 @@ master_count=2      # master count
 worker_num=1        # worker init number
 worker_count=3      # worker count
 
+usage() {                                     
+   echo
+   echo "Syntax: $0  [-h|a|d|m|w|s]"
+   echo "options:"
+   echo "h          Print help available options"
+   echo "a          Start whole k8s HandsON LAB"
+   echo "d          Destroy k8s HandsON LAB"
+   echo "m          Start k8s HandsON LAB masters only"
+   echo "w          Start k8s HandsON LAB workers only"
+   echo "s          Print k8s HandsON LAB status"
+   echo
+   exit 0
+}
+
+no_option() {                            
+  usage
+  exit 1
+}
+
 function func_prov_master {
-  echo "LAB PROVISIONER START - MASTERS"
+  echo ">>> LAB PROVISIONER START - MASTERS <<<"
   vagrant up k8s-master
   echo "========END PROVISIONER========"
 }
 
 function func_prov_worker {
-  echo "LAB PROVISIONER START - WORKER"
+  echo ">>> LAB PROVISIONER START - WORKER <<<"
   while [ $worker_num -le $worker_count ]
   do
     echo ">>> START PROVISION k8s-worker$worker_num <<<"
@@ -25,6 +44,45 @@ function func_prov_worker {
   echo "========END PROVISIONER========"
 }
 
-# Provision masters and workers
-#func_prov_master()
-func_prov_worker
+function func_destroy {
+  echo ">>> LAB PROVISIONER DESTROY K8S CLUSTER <<<"
+  vagrant destroy -f
+  echo "========END PROVISIONER========"
+}
+
+function func_status {
+  echo ">>> LAB PROVISIONER STATUS K8S CLUSTER <<<"
+  vagrant status
+  echo "========END PROVISIONER========"
+}
+
+while getopts "hadmws" options; do            
+                                                                                        
+  case $options in                          
+    h)
+      usage                                        
+      ;;
+    a)
+      func_prov_master
+      func_prov_worker
+      ;;
+    d)
+      func_destroy
+      ;;
+    m)
+      func_prov_master
+      ;;
+    w) 
+      func_prov_worker
+      ;;
+    s) 
+      func_status
+      ;;
+    *)                                        
+      no_option                           
+      ;;
+  esac
+done
+
+
+
