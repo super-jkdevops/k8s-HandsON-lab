@@ -1,0 +1,16 @@
+- name: 'Configure /etc/hosts for all LAB hosts'
+  blockinfile:
+    path: /etc/hosts
+    marker: "# LAB HOSTS"
+    block: |
+      172.16.0.2  k8s-master
+      172.16.0.3  k8s-worker1
+      172.16.0.4  k8s-worker2
+      172.16.0.5  k8s-worker3
+
+- name: 'Delete unnecessary entries from /etc/hosts file'
+  lineinfile:
+    path: /etc/hosts
+    state: absent
+    regexp: '^127.0.1.1 k8s'
+

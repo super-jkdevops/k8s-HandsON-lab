@@ -3,6 +3,6 @@
   become: true
   gather_facts: no
   tasks:
-    - name: 'Kubernetes Push Join'
+    - name: 'Kubernetes prepare hosts entries'
       import_role:
-        name: k8s-push-join
+        name: k8s-hosts

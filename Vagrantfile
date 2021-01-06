@@ -10,6 +10,7 @@ IMAGE_NAME_K8S  = "centos/7"
 DISK_SIZE = 10240
 PLAYBOOK_DIR = "/vagrant/ansible"
 ROLES_DIR = "/vagrant/ansible/roles"
+ANSIBLE_INVENTORY = "#{PLAYBOOK_DIR}" + '/inventory/hosts'
 
 # Generate ssh keys for K8S further usage
 system("
@@ -53,14 +54,23 @@ Vagrant.configure("2") do |config|
       cfg.vm.provision "shell", path: "src/scripts/provisioning/#{info[:custom_host]}", privileged: true
 
       # Install ansible on Ansible on each node
-      cfg.vm.provision "shell", path: "src/scripts/provisioning/ansible-installation.sh", privileged: true
+      #cfg.vm.provision "shell", path: "src/scripts/provisioning/ansible-installation.sh", privileged: true
 
       # Propagate ssh keys in case of further ansible usage
       cfg.vm.provision "ansible_local" do |ansible|
-        ansible.verbose = "v"
+        ansible.verbose = true
+        ansible.install = true
         ansible.playbook = "#{PLAYBOOK_DIR}" + '/' + 'ssh-key.yaml'
         ansible.galaxy_roles_path = "#{ROLES_DIR}"
       end # end ssh key propagation
+
+      # Prepare /etc/hosts adopt entries interconnect cluster
+      cfg.vm.provision "ansible_local" do |ansible|
+        ansible.verbose = true
+        ansible.install = true
+        ansible.playbook = "#{PLAYBOOK_DIR}" + '/' + 'k8s-hosts.yaml'
+        ansible.galaxy_roles_path = "#{ROLES_DIR}"
+      end # end hosts file preparation
 
       if (hostname == 'k8s-master') or (hostname == 'k8s-worker1') or (hostname == 'k8s-worker2') or (hostname == 'k8s-worker3') then
         # Prerequisite ansible playbooks for kubernetes
@@ -72,23 +82,26 @@ Vagrant.configure("2") do |config|
       end
 
       if (hostname == 'k8s-master') then
-        
         # k8s bootstrapping master
         cfg.vm.provision "ansible_local" do |ansible|
           ansible.verbose = "v"
-          ansible.playbook = "#{PLAYBOOK_DIR}" + '/' + 'k8s-bootstrap-master.yam'
+          ansible.playbook = "#{PLAYBOOK_DIR}" + '/' + 'k8s-bootstrap-master.yaml'
           ansible.galaxy_roles_path = "#{ROLES_DIR}"
         end # end master bootstrapping
       
-        # Download join.sh script from master previously generated
+      end
+
+      if (hostname == 'k8s-worker1') or (hostname == 'k8s-worker2') or (hostname == 'k8s-worker3') then
+
+        # Download join script from master previously generated
         cfg.vm.provision "ansible_local" do |ansible|
           ansible.verbose = "v"
           ansible.playbook = "#{PLAYBOOK_DIR}" + '/' + 'k8s-pull-join.yaml'
           ansible.galaxy_roles_path = "#{ROLES_DIR}"
+          ansible.inventory_path = "#{ANSIBLE_INVENTORY}"
+          ansible.limit = "k8s-master"
         end # end pull join.sh from master
-      end
 
-      if (hostname == 'k8s-worker1') or (hostname == 'k8s-worker2') or (hostname == 'k8s-worker3') then
         # k8s bootstrapping worker
         cfg.vm.provision "ansible_local" do |ansible|
           ansible.verbose = "v"
@@ -96,12 +109,13 @@ Vagrant.configure("2") do |config|
           ansible.galaxy_roles_path = "#{ROLES_DIR}"
         end # end worker bottstrapping
 
-        # Push join.sh to worker and running joining
+        # k8s join worker
         cfg.vm.provision "ansible_local" do |ansible|
           ansible.verbose = "v"
-          ansible.playbook = "#{PLAYBOOK_DIR}" + '/' + 'k8s-push-join.yaml'
+          ansible.playbook = "#{PLAYBOOK_DIR}" + '/' + 'k8s-join-worker.yaml'
           ansible.galaxy_roles_path = "#{ROLES_DIR}"
-        end # end joining worker node to k8s cluster
+        end # end worker joining
+
       end # End host selection
 
       # start first run privider

@@ -1,5 +1,5 @@
 ---
-- name: 'Create a .ssh directory if it does not exist'
+- name: 'Create a .ssh directory if it does not exist - root'
   file:
     path: $HOME/.ssh
     state: directory
@@ -7,13 +7,13 @@
     group: root
     mode: '0700'
 
-- name: 'Copy ssh private and public keys'
+- name: 'Copy ssh private and public keys - root'
   copy: src={{ item.src }} dest={{ item.dest }}
   with_items:
     - { src: ../../../ssh-keys/k8s-cluster, dest: $HOME/.ssh/id_rsa }
     - { src: ../../../ssh-keys/k8s-cluster.pub, dest: $HOME/.ssh/authorized_keys }
 
-- name: 'Fix permissions'
+- name: 'Fix permissions - root'
   file :
     path : "{{ item }}"
     owner : root
@@ -22,3 +22,25 @@
   with_items:
     - $HOME/.ssh/id_rsa
     - $HOME/.ssh/authorized_keys
+
+- name: 'Create a .ssh directory if it does not exist - vagrant'
+  file:
+    path: /home/vagrant/.ssh
+    state: directory
+    owner: vagrant
+    group: vagrant
+    mode: '0700'
+
+- name: 'Copy ssh private and public keys - vagrant'
+  copy: src={{ item.src }} dest={{ item.dest }}
+  with_items:
+    - { src: ../../../ssh-keys/k8s-cluster, dest: /home/vagrant/.ssh/id_rsa }
+
+- name: 'Fix permissions - vagrant'
+  file :
+    path : "{{ item }}"
+    owner : vagrant
+    group : vagrant
+    mode : 0600
+  with_items:
+    - /home/vagrant/.ssh/id_rsa

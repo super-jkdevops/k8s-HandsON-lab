@@ -3,6 +3,6 @@
   become: true
   gather_facts: no
   tasks:
-    - name: 'Kubernetes Pull Join'
+    - name: 'Kubernetes Pull Join from master node'
       import_role:
         name: k8s-pull-join

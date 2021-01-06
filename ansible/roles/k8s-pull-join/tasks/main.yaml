@@ -1,4 +1,6 @@
 ---
-- name: 'Pull join.sh kubernetes file from the master to vagrant host'
-  run_once: yes
-  fetch: src=$HOME/ansible/join.sh dest=tmp/ flat=yes
+- name: 'Pull join script from master to worker'
+  fetch:
+    src: $HOME/ansible/join.sh
+    dest: /tmp/
+    flat: yes
