@@ -1,0 +1,8 @@
+---
+- hosts: all
+  become: true
+  gather_facts: no
+  tasks:
+    - name: 'Provision HAProxy Load Balancer'
+      import_role:
+        name: k8s-lb-provision

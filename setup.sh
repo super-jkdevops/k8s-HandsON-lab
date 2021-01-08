@@ -1,6 +1,7 @@
 #!/bin/bash
 # Who:           When:         What:  
 # Janusz Kujawa  06/01/2021    Initialize script
+# Janusz Kujawa  08/01/2021    Added loadbalancer function for provision LB based on HAProxy
 
 # Variables
 master_num=1        # master init number
@@ -16,6 +17,7 @@ usage() {
    echo "a          Start whole k8s HandsON LAB"
    echo "d          Destroy k8s HandsON LAB"
    echo "m          Start k8s HandsON LAB masters only"
+   echo "l          Start k8s HandsON LAB loadbalancer only"
    echo "w          Start k8s HandsON LAB workers only"
    echo "s          Print k8s HandsON LAB status"
    echo
@@ -28,8 +30,21 @@ no_option() {
 }
 
 function func_prov_master {
+  
+  vagrant up k8s-master1
+  vagrant up k8s-master2
+  echo "========END PROVISIONER========"
+}
+
+
+function func_prov_master {
   echo ">>> LAB PROVISIONER START - MASTERS <<<"
-  vagrant up k8s-master
+  while [ $master_num -le $master_count ]
+  do
+    echo ">>> START PROVISION k8s-master$master_num <<<"
+    vagrant up k8s-master$master_num
+    master_num=$(( $master_num + 1 ))
+  done
   echo "========END PROVISIONER========"
 }
 
@@ -41,6 +56,12 @@ function func_prov_worker {
     vagrant up k8s-worker$worker_num
     worker_num=$(( $worker_num + 1 ))
   done
+  echo "========END PROVISIONER========"
+}
+
+function func_prov_loadbalancer {
+  echo ">>> LAB PROVISIONER START - LOADBALANCER <<<"
+  vagrant up k8s-lb
   echo "========END PROVISIONER========"
 }
 
@@ -56,6 +77,7 @@ function func_status {
   echo "========END PROVISIONER========"
 }
 
+
 while getopts "hadmws" options; do            
                                                                                         
   case $options in                          
@@ -63,6 +85,7 @@ while getopts "hadmws" options; do
       usage                                        
       ;;
     a)
+      func_prov_loadbalancer
       func_prov_master
       func_prov_worker
       ;;
@@ -71,6 +94,9 @@ while getopts "hadmws" options; do
       ;;
     m)
       func_prov_master
+      ;;
+    l)
+      func_prov_loadbalancer
       ;;
     w) 
       func_prov_worker

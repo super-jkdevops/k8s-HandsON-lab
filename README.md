@@ -263,7 +263,7 @@ From directory where Vagrantfile is located (kubernetes-vagrant) try connect to 
 
 ### Check if machines are up and running
 ```
-./setup -s
+./setup -s7
 ```
 
 ### Test master node:
@@ -448,8 +448,9 @@ Thank you!
 - [ ] Add Ingress controller traefik as default controller
 - [ ] Setup frontend based on flask for course presentation
 - [ ] Correct output of commands
-- [ ] Provision 2nd master node
-- [ ] Provision HAProxy loadbalancer
-- [ ] One hadshoot provisioner script
+- [ ] Provision 2nd master node and rename k8s-master to k8s-master1
+- [x] Provision HAProxy loadbalancer correspond to 2 master nodes k8s-master1 and k8s-master2
+- [x] One hadshoot provisioner script
 - [x] Add apps directory synchronization to each of cluster node
 - [x] Replace Ansible on vagrant host using anslible_local on each vagrant vm (PARTIALY DONE)
+- [x] Reduce unnecessary steps for disk creation. Extra storage need to be provide only for workers vms

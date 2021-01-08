@@ -53,9 +53,10 @@
 
 - name: 'Initialize k8s master node'
   shell: kubeadm init --apiserver-advertise-address={{ adv_master_ip }} --pod-network-cidr={{ pod_network }}
+  kubeadm init --control-plane-endpoint "{{ lb_dns }}:{{ lb_port }}" --upload-certs
   vars:
-    adv_master_ip: 172.16.0.2
-    pod_network: 10.244.0.0/16
+    lb_dns: 172.16.0.2
+    lb_port: 10.244.0.0/16
 
   retries: 10
   delay: 30

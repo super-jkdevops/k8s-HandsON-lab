@@ -7,6 +7,7 @@ CONTROLLER = ENV.fetch('CONTROLLER', 'IDE')
 
 # Variables
 IMAGE_NAME_K8S  = "centos/7"
+IMAGE_NAME_LB = "bento/ubuntu-18.04"
 DISK_SIZE = 10240
 PLAYBOOK_DIR = "/vagrant/ansible"
 ROLES_DIR = "/vagrant/ansible/roles"
@@ -21,10 +22,12 @@ system("
 ")
 
 lab = {
-  "k8s-master"  => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.2",  :cpus => 2,  :mem =>1500,  :custom_host => "k8s-master.sh"  },
-  "k8s-worker1" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.3",  :cpus => 2,  :mem =>2048,  :custom_host => "k8s-worker1.sh" },
-  "k8s-worker2" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.4",  :cpus => 2,  :mem =>2048,  :custom_host => "k8s-worker2.sh" },
-  "k8s-worker3" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.5",  :cpus => 2,  :mem =>2048,  :custom_host => "k8s-worker3.sh" }
+  "k8s-master1" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.2",  :cpus => 2,  :mem =>1500,  :custom_host => "k8s-master1.sh" },
+  "k8s-master2" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.3",  :cpus => 2,  :mem =>1500,  :custom_host => "k8s-master2.sh" },
+  "k8s-lb"      => { :osimage => IMAGE_NAME_LB,   :ip => "172.16.0.10", :cpus => 1,  :mem =>512,   :custom_host => "k8s-lb.sh"      },
+  "k8s-worker1" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.20", :cpus => 2,  :mem =>2048,  :custom_host => "k8s-worker1.sh" },
+  "k8s-worker2" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.21", :cpus => 2,  :mem =>2048,  :custom_host => "k8s-worker2.sh" },
+  "k8s-worker3" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.22", :cpus => 2,  :mem =>2048,  :custom_host => "k8s-worker3.sh" }, 
   }
 
 # If does not exist create extra storage dir directory - ceph
@@ -72,7 +75,7 @@ Vagrant.configure("2") do |config|
         ansible.galaxy_roles_path = "#{ROLES_DIR}"
       end # end hosts file preparation
 
-      if (hostname == 'k8s-master') or (hostname == 'k8s-worker1') or (hostname == 'k8s-worker2') or (hostname == 'k8s-worker3') then
+      if (hostname == 'k8s-master1') or (hostname == 'k8s-master2') or (hostname == 'k8s-worker1') or (hostname == 'k8s-worker2') or (hostname == 'k8s-worker3') then
         # Prerequisite ansible playbooks for kubernetes
         cfg.vm.provision "ansible_local" do |ansible|
             ansible.verbose = "v"
@@ -81,7 +84,7 @@ Vagrant.configure("2") do |config|
         end # Kubernetes end ansible playbook runs
       end
 
-      if (hostname == 'k8s-master') then
+      if (hostname == 'k8s-master1') or (hostname == 'k8s-master1') then
         # k8s bootstrapping master
         cfg.vm.provision "ansible_local" do |ansible|
           ansible.verbose = "v"
@@ -93,13 +96,25 @@ Vagrant.configure("2") do |config|
 
       if (hostname == 'k8s-worker1') or (hostname == 'k8s-worker2') or (hostname == 'k8s-worker3') then
 
+        cfg.vm.provider :virtualbox do |vb, override|
+        
+          # Adding extra disk to all worker nodes
+          disk = "#{ST_DIR}" + '/' + hostname + '.vmdk'
+          if !File.exist?(disk)
+             #vb.customize ['createhd', '--filename', disk, '--size', "#{DISK_SIZE}", '--variant', 'Fixed']
+             vb.customize ['createhd', '--filename', disk, '--size', "#{DISK_SIZE}"]
+             vb.customize ['modifyhd', disk, '--type', 'writethrough']
+          end
+          vb.customize ['storageattach', :id, '--storagectl', CONTROLLER, '--port', 0, '--device', 1, '--type', 'hdd', '--medium', disk]
+        end # end provider
+
         # Download join script from master previously generated
         cfg.vm.provision "ansible_local" do |ansible|
           ansible.verbose = "v"
           ansible.playbook = "#{PLAYBOOK_DIR}" + '/' + 'k8s-pull-join.yaml'
           ansible.galaxy_roles_path = "#{ROLES_DIR}"
           ansible.inventory_path = "#{ANSIBLE_INVENTORY}"
-          ansible.limit = "k8s-master"
+          ansible.limit = "k8s-master1"
         end # end pull join.sh from master
 
         # k8s bootstrapping worker
@@ -118,17 +133,19 @@ Vagrant.configure("2") do |config|
 
       end # End host selection
 
+      if (hostname == 'k8s-lb') then
+
+        # k8s loadbalancer spinup
+        cfg.vm.provision "ansible_local" do |ansible|
+          ansible.verbose = "v"
+          ansible.playbook = "#{PLAYBOOK_DIR}" + '/' + 'k8s-lb-provision.yaml'
+          ansible.galaxy_roles_path = "#{ROLES_DIR}"
+        end # end installing loadbalancer
+
+      end # End host selection
+
       # start first run privider
       cfg.vm.provider :virtualbox do |vb, override|
-        
-        # Adding extra disk
-        disk = "#{ST_DIR}" + '/' + hostname + '.vmdk'
-        if !File.exist?(disk)
-           #vb.customize ['createhd', '--filename', disk, '--size', "#{DISK_SIZE}", '--variant', 'Fixed']
-           vb.customize ['createhd', '--filename', disk, '--size', "#{DISK_SIZE}"]
-           vb.customize ['modifyhd', disk, '--type', 'writethrough']
-        end
-        vb.customize ['storageattach', :id, '--storagectl', CONTROLLER, '--port', 0, '--device', 1, '--type', 'hdd', '--medium', disk] 
 
         # Memory, CPU, Image configuration
         vb.memory = "#{info[:mem]}"
