@@ -1,0 +1,20 @@
+---
+- name: 'Install HAProxy package'
+  apt:
+    name: haproxy
+    state: present
+
+- name: 'Propagate HAProxy configuration'
+  copy:
+    src: files/haproxy.cfg
+    dest: /etc/haproxy/haproxy.cfg
+    owner: root
+    group: root
+    mode: 0644
+
+- name: 'Restart HAProxy after reconfiguration'
+  systemd:
+    state: restarted
+    name: haproxy
+    
+

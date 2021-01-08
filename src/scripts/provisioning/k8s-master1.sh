@@ -1,6 +1,6 @@
 cat <<EOF | tee /etc/motd
 .--- k8s lab ---.
-|  Master Node  |
+| Master Node 1 |
 '---------------'
 EOF
 
