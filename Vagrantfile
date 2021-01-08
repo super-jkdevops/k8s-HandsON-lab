@@ -84,7 +84,7 @@ Vagrant.configure("2") do |config|
         end # Kubernetes end ansible playbook runs
       end
 
-      if (hostname == 'k8s-master1') or (hostname == 'k8s-master1') then
+      if (hostname == 'k8s-master1') or (hostname == 'k8s-master2') then
         # k8s bootstrapping master
         cfg.vm.provision "ansible_local" do |ansible|
           ansible.verbose = "v"

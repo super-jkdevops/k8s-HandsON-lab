@@ -185,14 +185,26 @@ based on CEPH you can provision also ceph boxes.
 
 run:
 
-Run provisioning scripts in two waves
+Run provisioning scripts in three waves
+
+***k8s-lb:**
+Loadbalancer provisioning
+
+```
+./setup.sh -l
+```
+
 
 ***k8s-master:***
+Master nodes provisioning
+
 ```
 ./setup.sh -m
 ```
 
 ***k8s-worker1 & k8s-worker2 & k8s-worker3:***
+Worker nodes provisioning
+
 ```
 ./setup.sh -w
 ```
@@ -258,24 +270,31 @@ k8s-worker2                    : ok=5    changed=2    unreachable=0    failed=0 
 
 It can take a while, up to 10 mins. Please be patient.
 
+Alternatively if you prefere you can just do it in one shoot:
+```
+./setup.sh -aB
+```
+
 ## Verification
 From directory where Vagrantfile is located (kubernetes-vagrant) try connect to k8s-master and k8s-worker[1,2,3] 
 
 ### Check if machines are up and running
 ```
-./setup -s7
+./setup -s
 ```
 
-### Test master node:
+### Smoke test from 1st master node:
 
 ```
-vagrant ssh k8s-master
-
-PLEASE FIX IT
+vagrant ssh k8s-master1
 
 ```
 
-`You will be asked for recreation ssh-keys, please answer "n"`
+.--- k8s lab ---.
+| Master Node 1 |
+'---------------'
+[vagrant@k8s-master1 ~]$ hostname
+k8s-master1
 
 
 ### Test if you can connect use names:
@@ -312,6 +331,14 @@ PING k8s-worker3 (172.16.0.5) 56(84) bytes of data.
 --- k8s-worker3 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
 rtt min/avg/max/mdev = 0.256/0.256/0.256/0.000 ms
+
+ping -c 1 k8s-lb
+PING k8s-lb (172.16.0.10) 56(84) bytes of data.
+64 bytes from k8s-lb (172.16.0.10): icmp_seq=1 ttl=64 time=0.300 ms
+
+--- k8s-lb ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.300/0.300/0.300/0.000 ms
 ```
 
 Please repeat this operation for k8s-worker1 and k8s-worker2 and try to ping each hosts in
