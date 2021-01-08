@@ -112,10 +112,12 @@ I highly encurage you to use Ubuntu 20.04 LTS!
 + Host entries:
 
 ```
-172.16.0.2   k8s-master
-172.16.0.3   k8s-worker1
-172.16.0.4   k8s-worker2
-172.16.0.5   k8s-worker2
+172.16.0.2   k8s-master1
+172.16.0.3   k8s-master2
+172.16.0.20  k8s-worker1
+172.16.0.21  k8s-worker2
+172.16.0.22  k8s-worker2
+172.16.0.10  k8s-lb
 ```
 
 `Don't need to be added to your /etc/hosts, in all cases we will use vagrant ssh command instead of standard ssh!`
@@ -359,10 +361,11 @@ Then following output should be displayed:
 
 ```
 NAME          STATUS   ROLES    AGE     VERSION
-k8s-master    Ready    master   16m     v1.19.4
-k8s-worker1   Ready    <none>   10m     v1.19.4
-k8s-worker2   Ready    <none>   4m36s   v1.19.4
-k8s-worker3   Ready    <none>   4m36s   v1.19.4
+k8s-master1   Ready    master   16m     v1.18.6
+k8s-master2   Ready    master   16m     v1.18.6
+k8s-worker1   Ready    <none>   10m     v1.18.6
+k8s-worker2   Ready    <none>   4m36s   v1.18.6
+k8s-worker3   Ready    <none>   4m36s   v1.18.6
 
 ```
 
@@ -443,10 +446,12 @@ If you are intrested please go as follow:
 
 ```
 cat <<EOT >> /etc/hosts
-172.16.0.2   k8s-master ceph.lab.com traefik.lab.com
-172.16.0.3   k8s-worker1
-172.16.0.4   k8s-worker2
-172.16.0.5   k8s-worker3
+172.16.0.2   k8s-master1 
+172.16.0.3   k8s-master2
+172.16.0.10  k8s-lb
+172.16.0.20  k8s-worker1
+172.16.0.21  k8s-worker2
+172.16.0.22  k8s-worker3
 EOT
 ```
 
