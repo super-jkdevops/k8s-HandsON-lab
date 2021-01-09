@@ -7,13 +7,7 @@ to work in K8s. It based on standard rpm installation.
 Currently I'm using 1.18.6. Version is provided as ansible varabile stored separately for master 
 workers and loadbalancer in ansible playbook vars manifest file.
 
-Feel free to change `version` id 18.0.6 does not satisfied you.
-
-
-Table of reasonable choice:
-Old and stable version:     1.18.6
-More fresh and stil stable: 1.19.4
-Most fresh which works:     1.20.1
+Feel free to change `version` if 18.0.6 does not satisfied you.
 
 ## Requirements
 Here will be short list about all requirements needed to run this environment.
