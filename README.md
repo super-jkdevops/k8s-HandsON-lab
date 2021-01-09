@@ -4,21 +4,13 @@ for education. It suits well when you have to perform fast tests and check if ap
 to work in K8s. It based on standard rpm installation.
 
 ## Kubernetes version
-Currently I'm using 1.18.6. Version is provided as variable you can find it in:
+Currently I'm using 1.18.6. Version is provided as ansible varabile stored separately for master 
+workers and loadbalancer in ansible playbook vars manifest file.
 
-for control plane:
-```
-ansible/roles/k8s-bootstrap-master/vars/main.yaml
-```
+Feel free to change `version` id 18.0.6 does not satisfied you.
 
-for workers:
-```
-ansible/roles/k8s-bootstrap-worker/vars/main.yaml
-```
 
-You can change version modifying value of 1 variable: `version`
-
-Reasonable choice:
+Table of reasonable choice:
 Old and stable version:     1.18.6
 More fresh and stil stable: 1.19.4
 Most fresh which works:     1.20.1

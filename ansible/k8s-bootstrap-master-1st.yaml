@@ -1,0 +1,8 @@
+---
+- hosts: all
+  become: true
+  gather_facts: yes
+  tasks:
+    - name: 'Kubernetes Master 1st Node'
+      import_role:
+        name: k8s-bootstrap-master-1st
