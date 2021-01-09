@@ -84,11 +84,12 @@ Vagrant.configure("2") do |config|
         end # Kubernetes end ansible playbook runs
       end
 
-      if (hostname == 'k8s-master1') or (hostname == 'k8s-master1') then
+      # Initialize first control plane and give possibility to upload keys
+      if (hostname == 'k8s-master1') then
         # k8s bootstrapping master
         cfg.vm.provision "ansible_local" do |ansible|
           ansible.verbose = "v"
-          ansible.playbook = "#{PLAYBOOK_DIR}" + '/' + 'k8s-bootstrap-master.yaml'
+          ansible.playbook = "#{PLAYBOOK_DIR}" + '/' + 'k8s-bootstrap-master-1st.yaml'
           ansible.galaxy_roles_path = "#{ROLES_DIR}"
         end # end master bootstrapping
       

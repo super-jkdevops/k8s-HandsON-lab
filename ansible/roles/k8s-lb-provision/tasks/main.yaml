@@ -16,5 +16,22 @@
   systemd:
     state: restarted
     name: haproxy
-    
 
+- name: 'Add Google official GPG key'
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+
+- name: 'Add Kubernetes Repository'
+  apt_repository:
+    repo: deb http://apt.kubernetes.io/ kubernetes-xenial main 
+    state: present
+    filename: kubernetes
+    mode: 0600
+    
+- name: 'Install Kubernetes packages administration purpose'
+  apt: 
+    name:
+      - kubeadm={{ version }}
+      - kubectl={{ version }}
+    state: present

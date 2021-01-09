@@ -52,11 +52,11 @@
 
 
 - name: 'Initialize k8s master node'
-  shell: kubeadm init --apiserver-advertise-address={{ adv_master_ip }} --pod-network-cidr={{ pod_network }}
-  kubeadm init --control-plane-endpoint "{{ lb_dns }}:{{ lb_port }}" --upload-certs
+  shell: kubeadm init --apiserver-advertise-address {{ ansible_eth1.ipv4.address }} --control-plane-endpoint {{ lb_dns }}":"{{ lb_port }} --pod-network-cidr={{ pod_network }} --upload-certs
   vars:
-    lb_dns: 172.16.0.2
-    lb_port: 10.244.0.0/16
+    lb_dns: 'k8s-lb'
+    lb_port: '6443'
+    pod_network: '10.244.0.0/16'
 
   retries: 10
   delay: 30
@@ -105,8 +105,13 @@
     - { src: ../../../conf/ansible.cfg, dest: $HOME/ansible/ansible.cfg }
 
 - name: 'Generate join command'
-  shell: kubeadm token create --print-join-command > $HOME/ansible/join.sh;chmod 700 $HOME/ansible/join.sh
-  register: status
+  #shell: kubeadm token create --print-join-command > $HOME/ansible/join.sh;chmod 700 $HOME/ansible/join.sh
+  shell: kubeadm token create --print-join-command
+  register: k8s_join_worker_cmd
+- debug:
+    msg: "{{ k8s_join_worker_cmd.stdout }}"
+#- debug: msg="{{ status.stdout }}"
+#- debug: msg="{{ status.stderr }}"
 
-- debug: msg="{{ status.stdout }}"
-- debug: msg="{{ status.stderr }}"
+- name: 'Copy Worker join command to local file'
+  local_action: copy content="{{ k8s_join_worker_cmd.stdout_lines[0] }}" dest="$HOME/ansible/join.sh" mode=0777

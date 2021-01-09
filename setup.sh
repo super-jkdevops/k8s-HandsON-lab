@@ -30,14 +30,6 @@ no_option() {
 }
 
 function func_prov_master {
-  
-  vagrant up k8s-master1
-  vagrant up k8s-master2
-  echo "========END PROVISIONER========"
-}
-
-
-function func_prov_master {
   echo ">>> LAB PROVISIONER START - MASTERS <<<"
   while [ $master_num -le $master_count ]
   do
@@ -78,7 +70,7 @@ function func_status {
 }
 
 
-while getopts "hadmws" options; do            
+while getopts "hadmlws" options; do            
                                                                                         
   case $options in                          
     h)

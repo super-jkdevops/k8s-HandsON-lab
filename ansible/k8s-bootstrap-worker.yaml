@@ -3,6 +3,6 @@
   become: true
   gather_facts: no
   tasks:
-    - name: 'Kubernetes Worker'
+    - name: 'Kubernetes worker'
       import_role:
         name: k8s-bootstrap-worker
