@@ -12,11 +12,11 @@ Feel free to change `version` id 18.0.6 does not satisfied you.
 
 Table of reasonable choice:
 <br/>
-Old and stable version:     1.18.6
+Old and stable version:     **1.18.6**
 <br/>
-More fresh and stil stable: 1.19.4
+More fresh and stil stable: **1.19.4**
 <br/>
-Most fresh which works:     1.20.1
+Most fresh which works:     **1.20.1**
 
 ## Requirements
 Here will be short list about all requirements needed to run this environment.
