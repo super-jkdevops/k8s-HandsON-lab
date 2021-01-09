@@ -104,14 +104,20 @@
     - { src: ../../../inventory/hosts, dest: $HOME/ansible/hosts }
     - { src: ../../../conf/ansible.cfg, dest: $HOME/ansible/ansible.cfg }
 
-- name: 'Generate join command'
-  #shell: kubeadm token create --print-join-command > $HOME/ansible/join.sh;chmod 700 $HOME/ansible/join.sh
+- name: 'Generate join command for masters'
+  shell: kubeadm token create --print-join-command --certificate-key $(kubeadm alpha certs certificate-key)
+  register: k8s_join_master_cmd
+- debug:
+    msg: "{{ k8s_join_master_cmd.stdout }}"
+
+- name: 'Copy Master join command to local file'
+  local_action: copy content="{{ k8s_join_master_cmd.stdout_lines[0] }}" dest="$HOME/ansible/join-master.sh" mode=0777
+
+- name: 'Generate join command for workers'
   shell: kubeadm token create --print-join-command
   register: k8s_join_worker_cmd
 - debug:
     msg: "{{ k8s_join_worker_cmd.stdout }}"
-#- debug: msg="{{ status.stdout }}"
-#- debug: msg="{{ status.stderr }}"
 
 - name: 'Copy Worker join command to local file'
-  local_action: copy content="{{ k8s_join_worker_cmd.stdout_lines[0] }}" dest="$HOME/ansible/join.sh" mode=0777
+  local_action: copy content="{{ k8s_join_worker_cmd.stdout_lines[0] }}" dest="$HOME/ansible/join-worker.sh" mode=0777

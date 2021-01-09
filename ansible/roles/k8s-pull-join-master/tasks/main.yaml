@@ -1,0 +1,6 @@
+---
+- name: 'Pull join script from master to another master (master functionality)'
+  fetch:
+    src: $HOME/ansible/join-master.sh
+    dest: /tmp/
+    flat: yes

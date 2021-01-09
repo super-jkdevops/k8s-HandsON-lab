@@ -1,0 +1,6 @@
+---
+- name: 'Pull join script from master to worker (worker functionality)'
+  fetch:
+    src: $HOME/ansible/join-worker.sh
+    dest: /tmp/
+    flat: yes

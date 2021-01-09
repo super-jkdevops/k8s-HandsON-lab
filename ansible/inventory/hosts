@@ -2,9 +2,13 @@
 ansible_user = root
 
 [MASTER]
-k8s-master
+k8s-master1
+k8s-master2
 
 [NODES]
 k8s-worker1
 k8s-worker2
 k8s-worker3
+
+[LB]
+k8s-lb
