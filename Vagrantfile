@@ -92,8 +92,18 @@ Vagrant.configure("2") do |config|
           ansible.playbook = "#{PLAYBOOK_DIR}" + '/' + 'k8s-bootstrap-master-1st.yaml'
           ansible.galaxy_roles_path = "#{ROLES_DIR}"
         end # end master bootstrapping
-      
       end
+
+      # Join more masters as need redundancy control plane
+      if (hostname == 'k8s-master2') then
+        # k8s bootstrapping master
+        cfg.vm.provision "ansible_local" do |ansible|
+          ansible.verbose = "v"
+          ansible.playbook = "#{PLAYBOOK_DIR}" + '/' + 'k8s-join-master.yaml'
+          ansible.galaxy_roles_path = "#{ROLES_DIR}"
+        end # end master bootstrapping
+      end
+      
 
       if (hostname == 'k8s-worker1') or (hostname == 'k8s-worker2') or (hostname == 'k8s-worker3') then
 
@@ -112,7 +122,7 @@ Vagrant.configure("2") do |config|
         # Download join script from master previously generated
         cfg.vm.provision "ansible_local" do |ansible|
           ansible.verbose = "v"
-          ansible.playbook = "#{PLAYBOOK_DIR}" + '/' + 'k8s-pull-join.yaml'
+          ansible.playbook = "#{PLAYBOOK_DIR}" + '/' + 'k8s-pull-join-worker.yaml'
           ansible.galaxy_roles_path = "#{ROLES_DIR}"
           ansible.inventory_path = "#{ANSIBLE_INVENTORY}"
           ansible.limit = "k8s-master1"
