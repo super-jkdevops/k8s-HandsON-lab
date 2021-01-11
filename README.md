@@ -1,6 +1,7 @@
 # Our mission
 
 ## Kubernetes HandsON LAB
+```
 .-----------------------------------------------------------------------.
 | Build 3 control plane and 3 worker node K8s cluster. Solution should  |   
 | has loadbalancer in front of API servers. For master nodes we need to |
@@ -8,6 +9,7 @@
 | to avoid issue with multiple linux network interfaces assigned to     |
 | control planes!                                                       |
 '-----------------------------------------------------------------------'
+```
 
 # Three node Vagrant Kubernetes Cluster
 Welcome! This is small kubernetes cluster for testers and developers. You can use this code also
