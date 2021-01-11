@@ -293,16 +293,16 @@ From directory where Vagrantfile is located (kubernetes-vagrant) try connect to 
 
 ### Smoke test from 1st master node:
 
-```
+
 vagrant ssh k8s-master1
 
 ```
-
 .--- k8s lab ---.
 | Master Node 1 |
 '---------------'
 [vagrant@k8s-master1 ~]$ hostname
 k8s-master1
+```
 
 
 ### Test if you can connect use names:
