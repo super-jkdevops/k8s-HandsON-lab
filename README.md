@@ -34,7 +34,7 @@ Here will be short list about all requirements needed to run this environment.
 
 + Hardware:
   * 4 CPU
-  * 8GB RAM
+  * 10GB RAM
   * 60GB HDD (preffered SSD)
 
 + Operating system:
