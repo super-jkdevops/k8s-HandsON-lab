@@ -1,5 +1,6 @@
 # Our mission
 
+| Kubernetes HandsON LAB                                                |
 |-----------------------------------------------------------------------|
 | Build 3 control plane and 3 worker node K8s cluster. Solution should  |   
 | has loadbalancer in front of API servers. For master nodes we need to |
