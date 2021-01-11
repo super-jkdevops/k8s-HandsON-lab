@@ -1,13 +1,29 @@
+# Our mission
+
+|-----------------------------------------------------------------------|
+| Build 3 control plane and 3 worker node K8s cluster. Solution should  |   
+| has loadbalancer in front of API servers. For master nodes we need to |
+| specify advertise IP address injected by Ansible. This hack is needed |
+| to avoid issue with multiple linux network interfaces assigned to     |
+| control planes!                                                       |
+
 # Three node Vagrant Kubernetes Cluster
 Welcome! This is small kubernetes cluster for testers and developers. You can use this code also
 for education. It suits well when you have to perform fast tests and check if application is able
 to work in K8s. It based on standard rpm installation.
 
 ## Kubernetes version
-Currently I'm using 1.18.6. Version is provided as ansible varabile stored separately for master 
+Currently I'm using 1.18.6. Version is provided as ansible varabile stored separately for master, 
 workers and loadbalancer in ansible playbook vars manifest file.
 
 Feel free to change `version` if 18.0.6 does not satisfied you.
+
+## Avoiding Ansible installation
+Due to fact that you may use different OS distribution for Vagrant host I decided
+to use ansible_local provisioner instead of ansible. This approach let you avoid 
+additional effort and save a lot of time in case of Ansible package installation.
+Of curse on Linux this easy task but same thing is not so colorfull on Windows.
+I would say it may be an nightmare ;-)  
 
 ## Requirements
 Here will be short list about all requirements needed to run this environment.

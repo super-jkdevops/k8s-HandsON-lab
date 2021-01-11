@@ -1,0 +1,11 @@
+---
+- name: 'Give ability to execute master node joining script'
+  file:
+    path: /tmp/join-master.sh
+    mode: 0700
+    
+- name: 'Joining master node {{ ansible_hostname}} into cluster'
+  shell: /tmp/join-master.sh
+  register: status
+- debug: msg="{{ status.stdout }}"
+- debug: msg="{{ status.stderr }}"

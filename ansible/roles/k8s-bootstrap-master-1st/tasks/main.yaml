@@ -60,11 +60,38 @@
 
   retries: 10
   delay: 30
-  register: result
-  until: result.stdout.find("Your Kubernetes control-plane has initialized successfully!") != -1
+  register: tmp_k8s_join_master_cmd
+  until: tmp_k8s_join_master_cmd.stdout.find("Your Kubernetes control-plane has initialized successfully!") != -1
 
-- debug: msg="{{ result.stdout }}"
-- debug: msg="{{ result.stderr }}"
+- debug: msg="{{ tmp_k8s_join_master_cmd.stdout }}"
+- debug: msg="{{ tmp_k8s_join_master_cmd.stderr }}"
+
+- name: 'Dump kubernetes initialization master command output to temporary file'
+  local_action: copy content="{{ tmp_k8s_join_master_cmd.stdout }}" dest="/tmp/tmp-join-master.sh" mode=0777
+
+- name: 'Hack Master join command from local file'
+  shell: cat /tmp/tmp-join-master.sh | sed -n '/  kubeadm join/,/--control-plane/p' | sed "s/^[ \t]*//"
+  register: k8s_join_master_cmd
+
+- debug: msg="{{ k8s_join_master_cmd.stdout }}"
+- debug: msg="{{ k8s_join_master_cmd.stderr }}"
+
+- name: 'Create a ansible playbook directory if it does not exist'
+  file:
+    path: $HOME/ansible
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: 'Copy ansible things'
+  copy: src={{ item.src }} dest={{ item.dest }}
+  with_items:
+    - { src: ../../../inventory/hosts, dest: $HOME/ansible/hosts }
+    - { src: ../../../conf/ansible.cfg, dest: $HOME/ansible/ansible.cfg }
+
+- name: 'Copy Master join command to local file'
+  local_action: copy content="{{ k8s_join_master_cmd.stdout }}" dest="$HOME/ansible/join-master.sh" mode=0777
 
 - name: 'Create a directory .kube if it does not exist'
   file:
@@ -89,29 +116,6 @@
 
 - debug: msg="{{ status.stdout }}"
 - debug: msg="{{ status.stderr }}"
-
-- name: 'Create a ansible playbook directory if it does not exist'
-  file:
-    path: $HOME/ansible
-    state: directory
-    owner: root
-    group: root
-    mode: '0700'
-
-- name: 'Copy ansible things'
-  copy: src={{ item.src }} dest={{ item.dest }}
-  with_items:
-    - { src: ../../../inventory/hosts, dest: $HOME/ansible/hosts }
-    - { src: ../../../conf/ansible.cfg, dest: $HOME/ansible/ansible.cfg }
-
-- name: 'Generate join command for masters'
-  shell: kubeadm token create --print-join-command --certificate-key $(kubeadm alpha certs certificate-key)
-  register: k8s_join_master_cmd
-- debug:
-    msg: "{{ k8s_join_master_cmd.stdout }}"
-
-- name: 'Copy Master join command to local file'
-  local_action: copy content="{{ k8s_join_master_cmd.stdout_lines[0] }}" dest="$HOME/ansible/join-master.sh" mode=0777
 
 - name: 'Generate join command for workers'
   shell: kubeadm token create --print-join-command
