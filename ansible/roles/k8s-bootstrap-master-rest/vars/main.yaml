@@ -1,2 +1,4 @@
 ---
 version: 1.18.6
+loadbalancer: k8s-lb
+lb-api-port: 6443

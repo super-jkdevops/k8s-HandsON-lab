@@ -1,11 +1,11 @@
 ---
 - name: 'Give ability to execute worker node joining script'
   file:
-    path: /tmp/join.sh
+    path: /tmp/join-worker.sh
     mode: 0700
     
-- name: 'Joining node {{ ansible_hostname}} into cluster'
-  shell: /tmp/join.sh
+- name: 'Joining worker node {{ ansible_hostname}} into cluster'
+  shell: /tmp/join-worker.sh
   register: status
 - debug: msg="{{ status.stdout }}"
 - debug: msg="{{ status.stderr }}"
