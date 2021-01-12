@@ -14,10 +14,12 @@
 '-----------------------------------------------------------------------'
 ```
 
-# Three node Vagrant Kubernetes Cluster
-Welcome! This is small kubernetes cluster for testers and developers. You can use this code also
+# Multiple controlplane, worker node cluster with load balancer
+Welcome! This is small kubernetes cluster for testers and developers, that want to get to know
+what Kubernetes is. LAb introduce redundancy for API server. You can use this code also
 for education. It suits well when you have to perform fast tests and check if application is able
-to work in K8s. It based on standard rpm installation.
+to work in K8s. It based on standard rpm installation. Please be patient during spin up cluster.
+This proces can take a while up to 30 mins.
 
 ## Kubernetes version
 Currently I'm using 1.18.6. Version is provided as ansible varabile stored separately for master, 

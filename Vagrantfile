@@ -22,13 +22,13 @@ system("
 ")
 
 lab = {
-  "k8s-master1" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.2",  :cpus => 2,  :mem =>1500,  :custom_host => "k8s-master1.sh" },
-  "k8s-master2" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.3",  :cpus => 2,  :mem =>1500,  :custom_host => "k8s-master2.sh" },
-  "k8s-master3" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.4",  :cpus => 2,  :mem =>1500,  :custom_host => "k8s-master3.sh" },
+  "k8s-master1" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.2",  :cpus => 2,  :mem =>1200,  :custom_host => "k8s-master1.sh" },
+  "k8s-master2" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.3",  :cpus => 2,  :mem =>1200,  :custom_host => "k8s-master2.sh" },
+  "k8s-master3" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.4",  :cpus => 2,  :mem =>1200,  :custom_host => "k8s-master3.sh" },
   "k8s-lb"      => { :osimage => IMAGE_NAME_LB,   :ip => "172.16.0.10", :cpus => 1,  :mem =>512,   :custom_host => "k8s-lb.sh"      },
-  "k8s-worker1" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.20", :cpus => 2,  :mem =>1200,  :custom_host => "k8s-worker1.sh" },
-  "k8s-worker2" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.21", :cpus => 2,  :mem =>1200,  :custom_host => "k8s-worker2.sh" },
-  "k8s-worker3" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.22", :cpus => 2,  :mem =>1200,  :custom_host => "k8s-worker3.sh" }, 
+  "k8s-worker1" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.20", :cpus => 2,  :mem =>2048,  :custom_host => "k8s-worker1.sh" },
+  "k8s-worker2" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.21", :cpus => 2,  :mem =>2048,  :custom_host => "k8s-worker2.sh" },
+  "k8s-worker3" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.22", :cpus => 2,  :mem =>2048,  :custom_host => "k8s-worker3.sh" }, 
   }
 
 # If does not exist create extra storage dir directory - ceph
