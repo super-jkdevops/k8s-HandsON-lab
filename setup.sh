@@ -5,7 +5,7 @@
 
 # Variables
 master_num=1        # master init number
-master_count=2      # master count  
+master_count=3      # master count  
 worker_num=1        # worker init number
 worker_count=3      # worker count
 
