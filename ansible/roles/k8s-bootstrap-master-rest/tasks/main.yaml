@@ -58,8 +58,8 @@
 - name: 'added advertise ip address to join-master.sh'
   replace:
     path: /tmp/join-master.sh
-    regexp: '{{loadbalancer}}:{{lb-api-port}}'
-    replace: '{{loadbalancer}}:{{lb-api-port}} --apiserver-advertise-address {{ ansible_eth1.ipv4.address }}'
+    regexp: 'k8s-lb:6443'
+    replace: 'k8s-lb:6443 --apiserver-advertise-address {{ ansible_eth1.ipv4.address }}'
     
 - name: 'Joining additional master {{ ansible_hostname}} into cluster'
   shell: /tmp/join-master.sh
