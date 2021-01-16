@@ -2,6 +2,7 @@
 # Who:           When:         What:  
 # Janusz Kujawa  06/01/2021    Initialize script
 # Janusz Kujawa  08/01/2021    Added loadbalancer function for provision LB based on HAProxy
+# Janusz Kujawa  16/01/2021    Added case for lack of arguments and option
 
 # Variables
 master_num=1        # master init number
@@ -69,6 +70,11 @@ function func_status {
   echo "========END PROVISIONER========"
 }
 
+if [[ $# -eq 0 ]] ; then
+    echo "!!! No argument and option given !!!"
+    no_option
+    exit 0
+fi
 
 while getopts "hadmlws" options; do            
                                                                                         
