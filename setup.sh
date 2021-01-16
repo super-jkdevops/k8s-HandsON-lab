@@ -2,13 +2,15 @@
 # Who:           When:         What:  
 # Janusz Kujawa  06/01/2021    Initialize script
 # Janusz Kujawa  08/01/2021    Added loadbalancer function for provision LB based on HAProxy
-# Janusz Kujawa  16/01/2021    Added case for lack of arguments and option
+# Janusz Kujawa  16/01/2021    Added case for lack of arguments and option.
+#                              Added cleanup ansible/ssk-keys dir
 
 # Variables
-master_num=1        # master init number
-master_count=3      # master count  
-worker_num=1        # worker init number
-worker_count=3      # worker count
+master_num=1                           # master init number
+master_count=3                         # master count  
+worker_num=1                           # worker init number
+worker_count=3                         # worker count
+ssh_key_dir=ansible/ssh-keys           # ssh-keys dierectory lab purpose
 
 usage() {                                     
    echo
@@ -61,6 +63,7 @@ function func_prov_loadbalancer {
 function func_destroy {
   echo ">>> LAB PROVISIONER DESTROY K8S CLUSTER <<<"
   vagrant destroy -f
+  rm -rf $ssh_key_dir
   echo "========END PROVISIONER========"
 }
 
