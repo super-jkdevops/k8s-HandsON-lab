@@ -1,5 +1,5 @@
-extrastorage
-extrastorage/*
+extradisks
+extradisks/*
 ansible/tmp
 ansible/tmp/*
 ansible/ssh-keys
