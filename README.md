@@ -150,7 +150,7 @@ Docker version 19.03.12, build 48a66213fe
 
 + Operating system version
 ```
-CentOS Linux release 7.8.2003 (Core) - Kubernetes itself
+Ubuntu 20.04 LTS - Kubernetes itself
 Ubuntu 18.04 LTS - HAProxy loadbalancer
 ```
 + Vagrant version

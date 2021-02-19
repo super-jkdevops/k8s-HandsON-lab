@@ -1,7 +1,7 @@
 ---
-- name: 'Completely disable SElinux'
-  selinux:
-    state: disabled
+#- name: 'Completely disable SElinux'
+#  selinux:
+#    state: disabled
 
 - sysctl:
     name: "{{ item }}"
