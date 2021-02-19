@@ -1,38 +1,30 @@
 ---
-- name: 'Configure Kubernetes repository'
-  yum_repository:
-    name: kubernetes
-    description: 'Kubernetes repository for CentOS'
-    file: kubernetes
-    baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
-    gpgkey: 'https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg'
-    gpgcheck: yes
-    enabled: yes
-    repo_gpgcheck: 1
+- name: 'Add Google official GPG key'
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+
+- name: 'Add Kubernetes Repository'
+  apt_repository:
+    repo: deb http://apt.kubernetes.io/ kubernetes-xenial main 
+    state: present
+    filename: kubernetes
+    mode: 0600
 
 - name: 'Install kubernetes binaries'
-  yum:
+  apt:
     name: "{{ packages }}"
     state: present
     update_cache: yes
   vars:
     packages:
-    - kubelet-{{ version }}
-    - kubeadm-{{ version }}
-    - kubectl-{{ version }}
+    - kubelet={{ version }}
+    - kubeadm={{ version }}
+    - kubectl={{ version }}
     - kubernetes-cni
 
-- name: 'Install Epel for further ansible installation'
-  yum:
-    name: "{{ packages }}"
-    state: present
-    update_cache: yes
-  vars:
-    packages:
-    - epel-release
-
 - name: 'Install ansible on master node'
-  yum:
+  apt:
     name: "{{ packages }}"
     state: present
     update_cache: yes
@@ -49,7 +41,6 @@
   service:
     name: kubelet
     state: started
-
 
 - name: 'Initialize k8s master node'
   shell: kubeadm init --apiserver-advertise-address {{ ansible_eth1.ipv4.address }} --control-plane-endpoint {{ lb_dns }}":"{{ lb_port }} --pod-network-cidr={{ pod_network }} --upload-certs

@@ -40,13 +40,12 @@
     enabled: no
 
 - name: 'Install prerequisite packages'
-  yum:
+  apt:
     name: "{{ packages }}"
     state: present
     update_cache: yes
   vars:
     packages:
-    - yum-utils
     - device-mapper-persistent-data
     - lvm2
     - curl
@@ -54,7 +53,7 @@
     - git
 
 - name: 'Uninstall docker from distribution if was installed'
-  yum:
+  apt:
     name:
       - docker
       - docker-client
@@ -66,18 +65,28 @@
       - docker-engine
     state: absent
 
-- name: 'Configure Docker CE repository'
-  yum_repository:
-    name: docker-ce-stable
-    description: 'Docker Community Edition Stable'
-    file: docker-ce
-    baseurl: https://download.docker.com/linux/centos/7/$basearch/stable
-    gpgkey: https://download.docker.com/linux/centos/gpg
-    gpgcheck: yes
-    enabled: yes
+- name: Install aptitude using apt
+  apt: name=aptitude state=latest update_cache=yes force_apt_get=yes
+
+- name: Install required system packages
+  apt: name={{ item }} state=latest update_cache=yes
+  loop: [ 'apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common', 'python3-pip', 'virtualenv', 'python3-setuptools']
+
+- name: Add Docker GPG apt Key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker Repository
+  apt_repository:
+    repo: deb https://download.docker.com/linux/ubuntu bionic stable
+    state: present
+
+- name: Update apt and install docker-ce
+  apt: update_cache=yes name=docker-ce state=latest
 
 - name: 'Install docker and its dependecies'
-  yum:
+  apt:
     name: "{{ packages }}"
     state: present
     update_cache: yes
