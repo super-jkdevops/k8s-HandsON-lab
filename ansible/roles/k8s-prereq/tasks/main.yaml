@@ -1,8 +1,4 @@
 ---
-#- name: 'Completely disable SElinux'
-#  selinux:
-#    state: disabled
-
 - sysctl:
     name: "{{ item }}"
     value: '1'
@@ -33,12 +29,6 @@
 - name: 'Disable swap'
   command: swapoff -a
 
-- name: 'Stop firewalld if it is running and disable from autostart'
-  systemd:
-    name: firewalld
-    state: stopped
-    enabled: no
-
 - name: 'Install prerequisite packages'
   apt:
     name: "{{ packages }}"
@@ -46,7 +36,6 @@
     update_cache: yes
   vars:
     packages:
-    - device-mapper-persistent-data
     - lvm2
     - curl
     - net-tools
@@ -55,35 +44,29 @@
 - name: 'Uninstall docker from distribution if was installed'
   apt:
     name:
-      - docker
-      - docker-client
-      - docker-client-latest
-      - docker-common
-      - docker-latest
-      - docker-latest-logrotate
-      - docker-logrotate
-      - docker-engine
+      - docker 
+      - docker-engine 
+      - docker.io 
+      - containerd 
+      - runc
     state: absent
 
-- name: Install aptitude using apt
+- name: 'Install aptitude using apt'
   apt: name=aptitude state=latest update_cache=yes force_apt_get=yes
 
-- name: Install required system packages
+- name: 'Install required system packages'
   apt: name={{ item }} state=latest update_cache=yes
-  loop: [ 'apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common', 'python3-pip', 'virtualenv', 'python3-setuptools']
+  loop: [ 'apt-transport-https', 'ca-certificates', 'curl', 'gnupg-agent', 'software-properties-common' ]
 
-- name: Add Docker GPG apt Key
+- name: 'Add Docker GPG apt Key'
   apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg
     state: present
 
-- name: Add Docker Repository
+- name: 'Add Docker Repository'
   apt_repository:
     repo: deb https://download.docker.com/linux/ubuntu bionic stable
     state: present
-
-- name: Update apt and install docker-ce
-  apt: update_cache=yes name=docker-ce state=latest
 
 - name: 'Install docker and its dependecies'
   apt:

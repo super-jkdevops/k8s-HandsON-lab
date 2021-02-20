@@ -7,7 +7,7 @@ ST_DIR = "extradisks/"
 
 # Variables
 #IMAGE_NAME_K8S  = "centos/7"
-IMAGE_NAME_K8S  = "bento/ubuntu-20.04"
+IMAGE_NAME_K8S  = "bento/ubuntu-18.04"
 IMAGE_NAME_LB = "bento/ubuntu-18.04"
 DISK1_SIZE = 10240
 DISK2_SIZE = 20480
