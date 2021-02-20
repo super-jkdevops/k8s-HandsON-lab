@@ -22,10 +22,10 @@ to work in K8s. It based on standard rpm installation. Please be patient during 
 This proces can take a while up to 30 mins.
 
 ## Kubernetes version
-Currently I'm using 1.18.6. Version is provided as ansible varabile stored separately for master, 
+Currently I'm using 1.19.3. Version is provided as ansible varabile stored separately for master, 
 workers and loadbalancer in ansible playbook vars manifest file.
 
-Feel free to change `version` if 18.0.6 does not satisfied you.
+Feel free to change `version` if 1.19.3 does not satisfied your requirements.
 
 ## Avoiding Ansible installation
 Due to fact that you may use different OS distribution for Vagrant host I decided
@@ -150,7 +150,7 @@ Docker version 19.03.12, build 48a66213fe
 
 + Operating system version
 ```
-CentOS Linux release 7.8.2003 (Core) - Kubernetes itself
+Ubuntu 20.04 LTS - Kubernetes itself
 Ubuntu 18.04 LTS - HAProxy loadbalancer
 ```
 + Vagrant version
@@ -491,6 +491,14 @@ Get-Process -Name ruby
 Get-Process -Name vagrant
 ```
 
+## Kubernetes applications
+
+### Nginx ingress controller as default
+
+### Service Mesh Istio
+
+### Portworx as dynamic storage volume provisioner
+
 More details about manage processes using powershell you can find under blow link:
 
 https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-process?view=powershell-7.1
@@ -498,8 +506,8 @@ https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.manageme
 Thank you!
 
 ### To Do
-- [ ] Spin up ceph cluster using rook
-- [ ] Add Ingress controller traefik as default controller
+- [ ] Spin up portworx cluster using daemonset yaml file
+- [ ] Add nginx Ingress controller as default controller
 - [ ] Setup frontend based on flask for course presentation
 - [ ] Correct output of commands
 - [x] Provision 2nd and 3rd master node and rename k8s-master to k8s-master1
