@@ -2,6 +2,7 @@
 # vi: set ft=ruby :
 
 ENV['VAGRANT_DEFAULT_PROVIDER'] = 'virtualbox'
+ENV['VAGRANT_NO_PARALLEL'] = 'yes'
 CONTROLLER = ENV.fetch('CONTROLLER1', 'VirtIO')
 ST_DIR = "extradisks/"
 
@@ -28,9 +29,9 @@ lab = {
   "k8s-master2" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.3",  :cpus => 2,  :mem =>1500,  :custom_host => "k8s-master2.sh" },
   "k8s-master3" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.4",  :cpus => 2,  :mem =>1500,  :custom_host => "k8s-master3.sh" },
   "k8s-lb"      => { :osimage => IMAGE_NAME_LB,   :ip => "172.16.0.10", :cpus => 1,  :mem =>512,   :custom_host => "k8s-lb.sh"      },
-  "k8s-worker1" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.20", :cpus => 2,  :mem =>3000,  :custom_host => "k8s-worker1.sh" },
-  "k8s-worker2" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.21", :cpus => 2,  :mem =>3000,  :custom_host => "k8s-worker2.sh" },
-  "k8s-worker3" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.22", :cpus => 2,  :mem =>3000,  :custom_host => "k8s-worker3.sh" }
+  "k8s-worker1" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.20", :cpus => 6,  :mem =>4500,  :custom_host => "k8s-worker1.sh" },
+  "k8s-worker2" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.21", :cpus => 6,  :mem =>4500,  :custom_host => "k8s-worker2.sh" },
+  "k8s-worker3" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.22", :cpus => 6,  :mem =>4500,  :custom_host => "k8s-worker3.sh" }
   }
 
 # If does not exist create extra storage dir directory - ceph
@@ -74,6 +75,17 @@ Vagrant.configure("2") do |config|
         ansible.playbook = "#{PLAYBOOK_DIR}" + '/' + 'k8s-hosts.yaml'
         ansible.galaxy_roles_path = "#{ROLES_DIR}"
       end # end hosts file preparation
+
+      if (hostname == 'k8s-lb') then
+
+        # k8s loadbalancer spinup
+        cfg.vm.provision "ansible_local" do |ansible|
+          ansible.verbose = "v"
+          ansible.playbook = "#{PLAYBOOK_DIR}" + '/' + 'k8s-lb-provision.yaml'
+          ansible.galaxy_roles_path = "#{ROLES_DIR}"
+        end # end installing loadbalancer
+
+      end # End host selection
 
       if (hostname == 'k8s-master1') or (hostname == 'k8s-master2')or (hostname == 'k8s-master3') or (hostname == 'k8s-worker1') or (hostname == 'k8s-worker2') or (hostname == 'k8s-worker3') then
         # Prerequisite ansible playbooks for kubernetes
@@ -164,17 +176,6 @@ Vagrant.configure("2") do |config|
           ansible.playbook = "#{PLAYBOOK_DIR}" + '/' + 'k8s-join-worker.yaml'
           ansible.galaxy_roles_path = "#{ROLES_DIR}"
         end # end worker joining
-
-      end # End host selection
-
-      if (hostname == 'k8s-lb') then
-
-        # k8s loadbalancer spinup
-        cfg.vm.provision "ansible_local" do |ansible|
-          ansible.verbose = "v"
-          ansible.playbook = "#{PLAYBOOK_DIR}" + '/' + 'k8s-lb-provision.yaml'
-          ansible.galaxy_roles_path = "#{ROLES_DIR}"
-        end # end installing loadbalancer
 
       end # End host selection
 

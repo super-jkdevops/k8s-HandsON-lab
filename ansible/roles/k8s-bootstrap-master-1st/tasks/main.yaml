@@ -49,7 +49,7 @@
     lb_port: '6443'
     pod_network: '10.244.0.0/16'
 
-  retries: 10
+  retries: 20
   delay: 30
   register: tmp_k8s_join_master_cmd
   until: tmp_k8s_join_master_cmd.stdout.find("Your Kubernetes control-plane has initialized successfully!") != -1
@@ -102,7 +102,9 @@
     remote_src: yes
 
 - name: 'Implement weavenet network for pods'
-  shell: kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+  #shell: kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+  #shell: kubectl apply -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
+  shell: kubectl apply -f kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
   register: status
 
 - debug: msg="{{ status.stdout }}"
