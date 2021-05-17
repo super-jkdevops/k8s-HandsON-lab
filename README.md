@@ -135,12 +135,12 @@ I highly encurage you to use Ubuntu 20.04 LTS!
 
 + Pods networking
 ```
-Weavenet Networks
+Calico Networks
 ```
 
 + Kubernetes version
 ```
-Kubernetes v1.18.6
+Kubernetes v1.19.3
 ```
 
 + Docker version
@@ -150,8 +150,8 @@ Docker version 19.03.12, build 48a66213fe
 
 + Operating system version
 ```
-Ubuntu 20.04 LTS - Kubernetes itself
-Ubuntu 18.04 LTS - HAProxy loadbalancer
+Ubuntu 20.04   LTS - Kubernetes itself
+Ubuntu 18.04.5 LTS - HAProxy loadbalancer
 ```
 + Vagrant version
 ```
@@ -368,13 +368,13 @@ kubectl get nodes
 
 Then following output should be displayed:
 ```
-NAME          STATUS   ROLES    AGE   VERSION
-k8s-master1   Ready    master   44m   v1.18.6
-k8s-master2   Ready    master   36m   v1.18.6
-k8s-master3   Ready    master   27m   v1.18.6
-k8s-worker1   Ready    <none>   19m   v1.18.6
-k8s-worker2   Ready    <none>   12m   v1.18.6
-k8s-worker3   Ready    <none>   93s   v1.18.6
+NAME          STATUS   ROLES    AGE     VERSION
+k8s-master1   Ready    master   7h24m   v1.19.3
+k8s-master2   Ready    master   7h18m   v1.19.3
+k8s-master3   Ready    master   7h9m    v1.19.3
+k8s-worker1   Ready    worker   7h2m    v1.19.3
+k8s-worker2   Ready    worker   6h54m   v1.19.3
+k8s-worker3   Ready    worker   6h45m   v1.19.3
 ```
 
 Please remember that you should see all nodes and masters as ready. If for some reason
@@ -411,32 +411,39 @@ You should see following output:
 
 ```
 NAME                                  READY   STATUS    RESTARTS   AGE
-coredns-66bff467f8-cjjgp              1/1     Running   0          45m
-coredns-66bff467f8-g6m9n              1/1     Running   0          45m
-etcd-k8s-master1                      1/1     Running   0          45m
-etcd-k8s-master2                      1/1     Running   0          37m
-etcd-k8s-master3                      1/1     Running   0          28m
-kube-apiserver-k8s-master1            1/1     Running   0          45m
-kube-apiserver-k8s-master2            1/1     Running   0          36m
-kube-apiserver-k8s-master3            1/1     Running   0          28m
-kube-controller-manager-k8s-master1   1/1     Running   1          45m
-kube-controller-manager-k8s-master2   1/1     Running   0          36m
-kube-controller-manager-k8s-master3   1/1     Running   0          28m
-kube-proxy-9tj2p                      1/1     Running   0          45m
-kube-proxy-djfzr                      1/1     Running   0          13m
-kube-proxy-fmcw2                      1/1     Running   0          37m
-kube-proxy-qhzmk                      1/1     Running   0          20m
-kube-proxy-sxgdc                      1/1     Running   0          28m
-kube-proxy-thgr2                      1/1     Running   0          2m30s
-kube-scheduler-k8s-master1            1/1     Running   2          45m
-kube-scheduler-k8s-master2            1/1     Running   0          36m
-kube-scheduler-k8s-master3            1/1     Running   0          28m
-weave-net-cfngw                       2/2     Running   0          28m
-weave-net-m5lx8                       2/2     Running   0          13m
-weave-net-mc7l6                       2/2     Running   0          20m
-weave-net-mdtdl                       2/2     Running   0          45m
-weave-net-twpkw                       2/2     Running   1          2m30s
-weave-net-zz894                       2/2     Running   0          37m
+calico-kube-controllers-6d7b4db76c-ddj8f   1/1     Running   3          7h12m
+calico-node-2ht8p                          1/1     Running   4          7h12m
+calico-node-5ccbg                          1/1     Running   4          6h46m
+calico-node-b8ffb                          1/1     Running   3          7h10m
+calico-node-czxw9                          1/1     Running   4          7h12m
+calico-node-gb9s2                          1/1     Running   4          6h54m
+calico-node-xw4rr                          1/1     Running   5          7h2m
+coredns-f9fd979d6-bzfvx                    1/1     Running   3          7h24m
+coredns-f9fd979d6-nk7xw                    1/1     Running   3          7h24m
+etcd-k8s-master1                           1/1     Running   3          7h25m
+etcd-k8s-master2                           1/1     Running   3          7h18m
+etcd-k8s-master3                           1/1     Running   5          7h10m
+kube-apiserver-k8s-master1                 1/1     Running   4          7h25m
+kube-apiserver-k8s-master2                 1/1     Running   5          7h18m
+kube-apiserver-k8s-master3                 1/1     Running   8          7h10m
+kube-controller-manager-k8s-master1        1/1     Running   6          7h25m
+kube-controller-manager-k8s-master2        1/1     Running   3          7h18m
+kube-controller-manager-k8s-master3        1/1     Running   4          7h10m
+kube-multus-ds-9wlxn                       1/1     Running   3          7h2m
+kube-multus-ds-b6qsv                       1/1     Running   3          7h2m
+kube-multus-ds-ffsht                       1/1     Running   3          7h2m
+kube-multus-ds-gw47r                       1/1     Running   4          6h46m
+kube-multus-ds-jbxpn                       1/1     Running   4          6h54m
+kube-multus-ds-n944z                       1/1     Running   4          7h2m
+kube-proxy-7tmkk                           1/1     Running   4          7h2m
+kube-proxy-jdvs2                           1/1     Running   4          6h54m
+kube-proxy-kch2b                           1/1     Running   3          7h10m
+kube-proxy-rmnf9                           1/1     Running   4          6h46m
+kube-proxy-sff8g                           1/1     Running   3          7h18m
+kube-proxy-xkvb2                           1/1     Running   3          7h24m
+kube-scheduler-k8s-master1                 1/1     Running   4          7h25m
+kube-scheduler-k8s-master2                 1/1     Running   3          7h18m
+kube-scheduler-k8s-master3                 1/1     Running   4          7h10m
 ```
 
 Deployments in kube-system namespace:
@@ -447,8 +454,9 @@ kubectl --namespace kube-system get deployments
 Desired output:
 
 ```
-NAME      READY   UP-TO-DATE   AVAILABLE   AGE
-coredns   2/2     2            2           46m
+NAME                      READY   UP-TO-DATE   AVAILABLE   AGE
+calico-kube-controllers   1/1     1            1           7h12m
+coredns                   2/2     2            2           7h25m
 ```
 
 ## Used technology:
@@ -509,7 +517,7 @@ Thank you!
 - [ ] Spin up portworx cluster using daemonset yaml file
 - [ ] Add nginx Ingress controller as default controller
 - [ ] Setup frontend based on flask for course presentation
-- [ ] Correct output of commands
+- [x] Correct output of commands
 - [x] Provision 2nd and 3rd master node and rename k8s-master to k8s-master1
 - [x] Provision HAProxy loadbalancer correspond to 2 master nodes k8s-master1 and k8s-master2
 - [x] One hadshoot provisioner script
