@@ -35,3 +35,12 @@
       - kubeadm={{ version }}
       - kubectl={{ version }}
     state: present
+
+- name: 'Kubectl autocomplete'
+  blockinfile:
+    path: /root/.bashrc
+    marker: "# K8s client configuration"
+    block: |
+      source <(kubectl completion bash)
+      alias k=kubectl
+      complete -F __start_kubectl k

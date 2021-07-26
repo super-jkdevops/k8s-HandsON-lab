@@ -1,4 +1,4 @@
 ---
-version: 1.19.3-00
+version: 1.19.8-00
 loadbalancer: k8s-lb
 lb-api-port: 6443
