@@ -1,0 +1,12 @@
+---
+- name: Create a directory if it does not exist
+  file:
+    path: /root/.kube
+    state: directory
+    mode: '0755'
+
+- name: 'Download kubeconfig from 1st master node'
+  fetch:
+    src: /etc/kubernetes/admin.conf
+    dest: /root/.kube/config
+    flat: yes

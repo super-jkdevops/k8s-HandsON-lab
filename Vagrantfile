@@ -25,13 +25,13 @@ system("
 ")
 
 lab = {
+  "k8s-lb"      => { :osimage => IMAGE_NAME_LB,   :ip => "172.16.0.10", :cpus => 1,  :mem =>512,   :custom_host => "k8s-lb.sh"      },
   "k8s-master1" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.2",  :cpus => 2,  :mem =>1500,  :custom_host => "k8s-master1.sh" },
   "k8s-master2" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.3",  :cpus => 2,  :mem =>1500,  :custom_host => "k8s-master2.sh" },
   "k8s-master3" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.4",  :cpus => 2,  :mem =>1500,  :custom_host => "k8s-master3.sh" },
-  "k8s-lb"      => { :osimage => IMAGE_NAME_LB,   :ip => "172.16.0.10", :cpus => 1,  :mem =>512,   :custom_host => "k8s-lb.sh"      },
-  "k8s-worker1" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.20", :cpus => 6,  :mem =>4500,  :custom_host => "k8s-worker1.sh" },
-  "k8s-worker2" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.21", :cpus => 6,  :mem =>4500,  :custom_host => "k8s-worker2.sh" },
-  "k8s-worker3" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.22", :cpus => 6,  :mem =>4500,  :custom_host => "k8s-worker3.sh" }
+  "k8s-worker1" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.20", :cpus => 6,  :mem =>2500,  :custom_host => "k8s-worker1.sh" },
+  "k8s-worker2" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.21", :cpus => 6,  :mem =>2500,  :custom_host => "k8s-worker2.sh" },
+  "k8s-worker3" => { :osimage => IMAGE_NAME_K8S,  :ip => "172.16.0.22", :cpus => 6,  :mem =>2500,  :custom_host => "k8s-worker3.sh" }
   }
 
 # If does not exist create extra storage dir directory - ceph
@@ -46,7 +46,7 @@ Vagrant.configure("2") do |config|
       type: 'rsync',
       # rsync__verbose: true,
       rsync__exclude: [
-        'extrastorage', 'src', '.gitignore',
+        'extrastorage', '.gitignore',
         'README.md', 'Vagrantfile', '.vagrant', 
         '.git', 'setup.sh',
       ]
@@ -124,7 +124,25 @@ Vagrant.configure("2") do |config|
           ansible.playbook = "#{PLAYBOOK_DIR}" + '/' + 'k8s-bootstrap-master-rest.yaml'
           ansible.galaxy_roles_path = "#{ROLES_DIR}"
         end # end master bootstrapping
+      end
 
+      # Join more masters as need redundancy control plane
+      if (hostname == 'k8s-lb') then
+        # Download kubeconfig from 1st master node
+        cfg.vm.provision "ansible_local" do |ansible|
+          ansible.verbose = "v"
+          ansible.playbook = "#{PLAYBOOK_DIR}" + '/' + 'k8s-download-kubeconfig.yaml'
+          ansible.galaxy_roles_path = "#{ROLES_DIR}"
+          ansible.inventory_path = "#{ANSIBLE_INVENTORY}"
+          ansible.limit = "k8s-master1"
+        end # end downloading kubeconfig
+        
+        # k8s bootstrapping rest of masters
+        cfg.vm.provision "ansible_local" do |ansible|
+          ansible.verbose = "v"
+          ansible.playbook = "#{PLAYBOOK_DIR}" + '/' + 'k8s-bootstrap-master-rest.yaml'
+          ansible.galaxy_roles_path = "#{ROLES_DIR}"
+        end # end master bootstrapping
       end
 
       if (hostname == 'k8s-worker1') or (hostname == 'k8s-worker2') or (hostname == 'k8s-worker3') then
