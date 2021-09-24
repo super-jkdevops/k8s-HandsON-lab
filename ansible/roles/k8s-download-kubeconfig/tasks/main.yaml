@@ -10,3 +10,10 @@
     src: /etc/kubernetes/admin.conf
     dest: /root/.kube/config
     flat: yes
+
+- name: 'Change file ownership, group and permissions'
+  file:
+    path: /root/.kube/config
+    owner: root
+    group: root
+    mode: '0600'
